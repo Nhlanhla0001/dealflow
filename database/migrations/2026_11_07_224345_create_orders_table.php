@@ -16,7 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('amount_minor');
             $table->char('currency', 3)->default('USD');
             $table->string('status', 32)->default('paid');
+            $table->unsignedSmallInteger('revisions_used')->default(0);
+            $table->text('delivery_message')->nullable();
+            $table->string('delivery_url')->nullable();
             $table->timestamp('paid_at')->nullable();
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('delivered_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
 
