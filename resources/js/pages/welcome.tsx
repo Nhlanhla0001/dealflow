@@ -66,10 +66,19 @@ const audit = [
 ];
 
 const tools = [
-    ['Gemini 3 Flash', 'Buyer and seller proposals through the Laravel AI SDK.'],
+    [
+        'Gemini 3 Flash',
+        'Buyer and seller proposals through the Laravel AI SDK.',
+    ],
     ['PayPal Orders API v2', 'Sandbox order creation and verified capture.'],
-    ['PayPal webhooks', 'Signature verification and idempotent event handling.'],
-    ['Laravel 13 + Inertia 3', 'Server-driven pages with React 19 on the client.'],
+    [
+        'PayPal webhooks',
+        'Signature verification and idempotent event handling.',
+    ],
+    [
+        'Laravel 13 + Inertia 3',
+        'Server-driven pages with React 19 on the client.',
+    ],
     ['SQLite', 'Demo data, approvals, payment events, and audit log.'],
     ['Automated tests', 'Negotiation, approval, rejection, and payment paths.'],
 ];
@@ -124,7 +133,10 @@ export default function Welcome() {
                                     className="inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90"
                                 >
                                     Open dashboard
-                                    <ArrowRight className="size-4" aria-hidden />
+                                    <ArrowRight
+                                        className="size-4"
+                                        aria-hidden
+                                    />
                                 </Link>
                             ) : (
                                 <>
@@ -174,7 +186,10 @@ export default function Welcome() {
                                     className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
                                 >
                                     Open the live demo
-                                    <ArrowRight className="size-4" aria-hidden />
+                                    <ArrowRight
+                                        className="size-4"
+                                        aria-hidden
+                                    />
                                 </Link>
                                 <a
                                     href="#trust"
@@ -347,7 +362,10 @@ export default function Welcome() {
                                     className="mt-6 inline-flex items-center gap-2 text-sm font-medium underline underline-offset-4 hover:text-emerald-700 dark:hover:text-emerald-400"
                                 >
                                     See the paid deal
-                                    <ArrowRight className="size-4" aria-hidden />
+                                    <ArrowRight
+                                        className="size-4"
+                                        aria-hidden
+                                    />
                                 </Link>
                             </div>
 
@@ -388,8 +406,8 @@ export default function Welcome() {
                                     Built with tools you can inspect.
                                 </h2>
                                 <p className="mt-4 text-base leading-7 text-muted-foreground">
-                                    The AI is real, the limits are code, and
-                                    the payment is PayPal sandbox.
+                                    The AI is real, the limits are code, and the
+                                    payment is PayPal sandbox.
                                 </p>
                             </div>
 
@@ -432,7 +450,10 @@ export default function Welcome() {
                             <div className="lg:text-right">
                                 <div className="inline-flex flex-col items-start gap-3 rounded-xl border border-background/20 p-4 text-left">
                                     <div className="flex items-center gap-2 text-xs text-background/70">
-                                        <Wallet className="size-4" aria-hidden />
+                                        <Wallet
+                                            className="size-4"
+                                            aria-hidden
+                                        />
                                         Sandbox credentials
                                     </div>
                                     <code className="font-mono text-[11px] leading-5">
@@ -441,9 +462,7 @@ export default function Welcome() {
                                         seller@dealflow.test / password
                                     </code>
                                     <Link
-                                        href={
-                                            auth.user ? dashboard() : login()
-                                        }
+                                        href={auth.user ? dashboard() : login()}
                                         className="inline-flex items-center gap-2 rounded-lg bg-background px-4 py-2 text-sm font-medium text-foreground transition-opacity hover:opacity-90"
                                     >
                                         {auth.user

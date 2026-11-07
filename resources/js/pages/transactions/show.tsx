@@ -294,7 +294,8 @@ export default function TransactionsShow({
                                                             min="1"
                                                             max="365"
                                                             defaultValue={
-                                                                transaction.offer
+                                                                transaction
+                                                                    .offer
                                                                     ?.delivery_days ??
                                                                 transaction.delivery_days
                                                             }
@@ -314,13 +315,17 @@ export default function TransactionsShow({
                                                             id="terms"
                                                             name="terms"
                                                             defaultValue={
-                                                                transaction.offer
-                                                                    ?.terms ?? ''
+                                                                transaction
+                                                                    .offer
+                                                                    ?.terms ??
+                                                                ''
                                                             }
                                                             placeholder="Payment on delivery, two revision rounds"
                                                         />
                                                         <InputError
-                                                            message={errors.terms}
+                                                            message={
+                                                                errors.terms
+                                                            }
                                                         />
                                                     </div>
                                                 </div>
@@ -367,8 +372,7 @@ export default function TransactionsShow({
                                                 <p className="text-xs text-muted-foreground">
                                                     Private floor:{' '}
                                                     {formatMoney(
-                                                        transaction
-                                                            .seller_floor_minor,
+                                                        transaction.seller_floor_minor,
                                                         transaction.currency,
                                                     )}
                                                 </p>
@@ -397,57 +401,53 @@ export default function TransactionsShow({
                             <CardContent className="space-y-4">
                                 {negotiation?.messages?.length ? (
                                     <div className="space-y-3">
-                                        {negotiation.messages.map(
-                                            (message) => (
-                                                <div
-                                                    key={message.id}
-                                                    className="rounded-lg border p-3"
-                                                >
-                                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                                        <Badge
-                                                            variant={
-                                                                message.agent ===
-                                                                'buyer'
-                                                                    ? 'secondary'
-                                                                    : 'outline'
-                                                            }
-                                                        >
-                                                            {message.agent ===
+                                        {negotiation.messages.map((message) => (
+                                            <div
+                                                key={message.id}
+                                                className="rounded-lg border p-3"
+                                            >
+                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                    <Badge
+                                                        variant={
+                                                            message.agent ===
                                                             'buyer'
-                                                                ? 'Buyer agent'
-                                                                : 'Seller agent'}
-                                                        </Badge>
-                                                        <span className="text-xs text-muted-foreground">
-                                                            Round{' '}
-                                                            {message.round}
-                                                        </span>
-                                                    </div>
-                                                    <p className="mt-2 text-sm">
-                                                        {message.action ===
-                                                        'offer'
-                                                            ? 'Proposed terms'
-                                                            : message.action}
-                                                        {message.price_minor !==
-                                                        null
-                                                            ? ` · ${formatMoney(
-                                                                  message.price_minor,
-                                                                  message.currency ??
-                                                                      transaction.currency,
-                                                              )}`
-                                                            : ''}
-                                                        {message.delivery_days !==
-                                                        null
-                                                            ? ` · ${message.delivery_days} days`
-                                                            : ''}
-                                                    </p>
-                                                    {message.reason && (
-                                                        <p className="mt-1 text-xs text-muted-foreground">
-                                                            {message.reason}
-                                                        </p>
-                                                    )}
+                                                                ? 'secondary'
+                                                                : 'outline'
+                                                        }
+                                                    >
+                                                        {message.agent ===
+                                                        'buyer'
+                                                            ? 'Buyer agent'
+                                                            : 'Seller agent'}
+                                                    </Badge>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Round {message.round}
+                                                    </span>
                                                 </div>
-                                            ),
-                                        )}
+                                                <p className="mt-2 text-sm">
+                                                    {message.action === 'offer'
+                                                        ? 'Proposed terms'
+                                                        : message.action}
+                                                    {message.price_minor !==
+                                                    null
+                                                        ? ` · ${formatMoney(
+                                                              message.price_minor,
+                                                              message.currency ??
+                                                                  transaction.currency,
+                                                          )}`
+                                                        : ''}
+                                                    {message.delivery_days !==
+                                                    null
+                                                        ? ` · ${message.delivery_days} days`
+                                                        : ''}
+                                                </p>
+                                                {message.reason && (
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        {message.reason}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                 ) : canStartNegotiation ? (
                                     <div className="space-y-3">
@@ -473,9 +473,9 @@ export default function TransactionsShow({
                                     </div>
                                 ) : (
                                     <EmptyState>
-                                        No negotiation messages yet. The
-                                        seller must submit an offer before the
-                                        buyer can start negotiation.
+                                        No negotiation messages yet. The seller
+                                        must submit an offer before the buyer
+                                        can start negotiation.
                                     </EmptyState>
                                 )}
                             </CardContent>
@@ -498,18 +498,14 @@ export default function TransactionsShow({
                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                             <div>
                                                 <p className="text-sm font-medium">
-                                                    Version{' '}
-                                                    {agreement.version}
+                                                    Version {agreement.version}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
                                                     {formatMoney(
                                                         agreement.price_minor,
                                                         agreement.currency,
                                                     )}{' '}
-                                                    ·{' '}
-                                                    {
-                                                        agreement.delivery_days
-                                                    }{' '}
+                                                    · {agreement.delivery_days}{' '}
                                                     days
                                                 </p>
                                             </div>
@@ -521,8 +517,8 @@ export default function TransactionsShow({
                                             </Badge>
                                         </div>
                                         <p className="text-xs text-muted-foreground">
-                                            {agreement.approvals?.length ?? 0} of
-                                            2 approvals recorded.
+                                            {agreement.approvals?.length ?? 0}{' '}
+                                            of 2 approvals recorded.
                                         </p>
                                         {agreement.status === 'approved' ? (
                                             <p className="text-sm font-medium text-emerald-600">
@@ -537,7 +533,9 @@ export default function TransactionsShow({
                                                 >
                                                     {({ processing }) => (
                                                         <Button
-                                                            disabled={processing}
+                                                            disabled={
+                                                                processing
+                                                            }
                                                         >
                                                             {processing
                                                                 ? 'Approving…'
@@ -553,7 +551,9 @@ export default function TransactionsShow({
                                                     {({ processing }) => (
                                                         <Button
                                                             variant="outline"
-                                                            disabled={processing}
+                                                            disabled={
+                                                                processing
+                                                            }
                                                         >
                                                             {processing
                                                                 ? 'Rejecting…'
@@ -585,9 +585,9 @@ export default function TransactionsShow({
                                     Payment
                                 </CardTitle>
                                 <CardDescription>
-                                    PayPal sandbox checkout. Payment is
-                                    verified server-side before the transaction
-                                    is marked paid.
+                                    PayPal sandbox checkout. Payment is verified
+                                    server-side before the transaction is marked
+                                    paid.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -730,8 +730,7 @@ export default function TransactionsShow({
                                     <>
                                         <p>
                                             Waiting for{' '}
-                                            {counterparty?.name ??
-                                                'the seller'}{' '}
+                                            {counterparty?.name ?? 'the seller'}{' '}
                                             to submit an offer.
                                         </p>
                                         <p className="flex items-center gap-2 text-xs">
@@ -803,8 +802,14 @@ export default function TransactionsShow({
                                                 <div>
                                                     <p className="font-medium capitalize">
                                                         {log.action
-                                                            .replaceAll('.', ' ')
-                                                            .replaceAll('_', ' ')}
+                                                            .replaceAll(
+                                                                '.',
+                                                                ' ',
+                                                            )
+                                                            .replaceAll(
+                                                                '_',
+                                                                ' ',
+                                                            )}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">
                                                         {formatDate(
@@ -826,9 +831,7 @@ export default function TransactionsShow({
                 </div>
 
                 <Button asChild variant="ghost" className="w-fit">
-                    <Link href={transactionsShow(transaction.id)}>
-                        Refresh
-                    </Link>
+                    <Link href={transactionsShow(transaction.id)}>Refresh</Link>
                 </Button>
             </div>
         </>

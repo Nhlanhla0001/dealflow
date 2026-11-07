@@ -62,72 +62,72 @@ The product is intended to support multiple people working together rather than 
 New migration set (in this order):
 
 1. `create_teams_table`
-   - `id`
-   - `user_id` — owner, foreign key to `users`, `cascadeOnDelete`
-   - `name` (string)
-   - `personal_team` (boolean, default `false`)
-   - timestamps
+    - `id`
+    - `user_id` — owner, foreign key to `users`, `cascadeOnDelete`
+    - `name` (string)
+    - `personal_team` (boolean, default `false`)
+    - timestamps
 2. `add_current_team_id_to_users_table`
-   - `current_team_id` — nullable foreign key to `teams`, `nullOnDelete`
+    - `current_team_id` — nullable foreign key to `teams`, `nullOnDelete`
 3. `create_team_user_table`
-   - `id`
-   - `team_id` — foreign key, `cascadeOnDelete`
-   - `user_id` — foreign key, `cascadeOnDelete`
-   - `role` (string, default `member`) — one of `owner`, `admin`, `member`
-   - timestamps
-   - unique (`team_id`, `user_id`)
+    - `id`
+    - `team_id` — foreign key, `cascadeOnDelete`
+    - `user_id` — foreign key, `cascadeOnDelete`
+    - `role` (string, default `member`) — one of `owner`, `admin`, `member`
+    - timestamps
+    - unique (`team_id`, `user_id`)
 4. `create_team_invitations_table`
-   - `id`
-   - `team_id` — foreign key, `cascadeOnDelete`
-   - `invited_by` — nullable foreign key to `users`, `nullOnDelete` (the notification and accept page show "a former member" if null)
-   - `email` (string)
-   - `role` (string) — one of `admin`, `member`
-   - `token` (string, unique)
-   - timestamps
-   - unique (`team_id`, `email`)
+    - `id`
+    - `team_id` — foreign key, `cascadeOnDelete`
+    - `invited_by` — nullable foreign key to `users`, `nullOnDelete` (the notification and accept page show "a former member" if null)
+    - `email` (string)
+    - `role` (string) — one of `admin`, `member`
+    - `token` (string, unique)
+    - timestamps
+    - unique (`team_id`, `email`)
 
 The owner is recorded both as `teams.user_id` and as a `team_user` row with role `owner`, so membership queries are uniform.
 
 ### Models
 
 - `App\Models\Team`
-  - `owner()` belongsTo `User`
-  - `users()` belongsToMany `User` with pivot `role` and timestamps
-  - `members()` alias for `users()` (readability)
-  - `invitations()` hasMany `TeamInvitation`
-  - `allUsers()` returns members including owner (owner is already in the pivot, so return `users`)
-  - `hasUser(User $user): bool`
-  - `hasUserWithEmail(string $email): bool`
-  - helpers: `isPersonal(): bool`
+    - `owner()` belongsTo `User`
+    - `users()` belongsToMany `User` with pivot `role` and timestamps
+    - `members()` alias for `users()` (readability)
+    - `invitations()` hasMany `TeamInvitation`
+    - `allUsers()` returns members including owner (owner is already in the pivot, so return `users`)
+    - `hasUser(User $user): bool`
+    - `hasUserWithEmail(string $email): bool`
+    - helpers: `isPersonal(): bool`
 - `App\Models\TeamInvitation`
-  - `team()` belongsTo `Team`
-  - `isExpired(): bool` (7-day lifetime, based on `created_at`)
+    - `team()` belongsTo `Team`
+    - `isExpired(): bool` (7-day lifetime, based on `created_at`)
 - `App\Models\User` additions
-  - `currentTeam()` belongsTo `Team`, `current_team_id`
-  - `ownedTeams()` hasMany `Team`, `user_id`
-  - `teams()` belongsToMany `Team` with pivot `role`
-  - `allTeams()` merges `teams` and `ownedTeams` (owner already has a pivot row, so this is `teams`)
-  - `personalTeam(): ?Team`
-  - `ownsTeam(Team $team): bool`
-  - `belongsToTeam(Team $team): bool`
-  - `teamRole(Team $team): ?string`
-  - `hasTeamPermission(Team $team, string $permission): bool`
-  - `switchTeam(Team $team): void` (sets `current_team_id`)
-  - casts: `current_team_id` integer
+    - `currentTeam()` belongsTo `Team`, `current_team_id`
+    - `ownedTeams()` hasMany `Team`, `user_id`
+    - `teams()` belongsToMany `Team` with pivot `role`
+    - `allTeams()` merges `teams` and `ownedTeams` (owner already has a pivot row, so this is `teams`)
+    - `personalTeam(): ?Team`
+    - `ownsTeam(Team $team): bool`
+    - `belongsToTeam(Team $team): bool`
+    - `teamRole(Team $team): ?string`
+    - `hasTeamPermission(Team $team, string $permission): bool`
+    - `switchTeam(Team $team): void` (sets `current_team_id`)
+    - casts: `current_team_id` integer
 
 ### Roles and permissions
 
 Central definition in `App\Support\TeamPermissions` (or `App\Providers\AppServiceProvider`), so the policy and UI read one source:
 
-| Permission | owner | admin | member |
-|---|---|---|---|
-| `team:view` | yes | yes | yes |
-| `team:update` | yes | no | no |
-| `team:delete` | yes | no | no |
-| `team:update-member` | yes | members only | no |
-| `team:remove-member` | yes | members only | no |
-| `team:invite` | yes | members only | no |
-| `team:cancel-invitation` | yes | yes | no |
+| Permission               | owner | admin        | member |
+| ------------------------ | ----- | ------------ | ------ |
+| `team:view`              | yes   | yes          | yes    |
+| `team:update`            | yes   | no           | no     |
+| `team:delete`            | yes   | no           | no     |
+| `team:update-member`     | yes   | members only | no     |
+| `team:remove-member`     | yes   | members only | no     |
+| `team:invite`            | yes   | members only | no     |
+| `team:cancel-invitation` | yes   | yes          | no     |
 
 Rules that the policy/actions enforce:
 
@@ -245,10 +245,10 @@ The shape is added to `resources/js/types/auth.ts`.
 - `resources/js/components/team-switcher.tsx` — replaces the plain logo in `app-sidebar.tsx`'s `SidebarHeader`. A Radix dropdown showing the current team, the user's other teams (switch on select), a separator, "Create team", and "Manage team". Creating and switching use Inertia `router.post` / `router.put` and keep scroll state.
 - `resources/js/components/create-team-modal.tsx` — dialog with a name field, posts to `teams.store`, closes on success, toast on error.
 - `resources/js/pages/settings/teams.tsx` — the team settings page, built from existing `Heading`, `Button`, `Input`, `Label`, `InputError`, `Dialog`, `Select`, `Badge` components:
-  - **Team name** — owner-only form (`PATCH teams/{team}`).
-  - **Members** — list with name, email, role; owner/admin see role select and remove; members see "Leave team".
-  - **Pending invitations** — owner/admin only; invite form (email + role) and cancel buttons.
-  - **Danger zone** — owner-only delete for non-personal teams, with confirmation.
+    - **Team name** — owner-only form (`PATCH teams/{team}`).
+    - **Members** — list with name, email, role; owner/admin see role select and remove; members see "Leave team".
+    - **Pending invitations** — owner/admin only; invite form (email + role) and cancel buttons.
+    - **Danger zone** — owner-only delete for non-personal teams, with confirmation.
 - `resources/js/pages/teams/accept-invitation.tsx` — shows the team name and inviter, with Accept and Decline buttons. Guests see sign-in/register actions that return them to this page. If the authenticated email does not match the invitation, show a clear error instead of the buttons. If the invitation has expired, show an expired state and no actions.
 - Add "Teams" to `resources/js/layouts/settings/layout.tsx` nav items.
 - Personal teams show no delete/leave controls.

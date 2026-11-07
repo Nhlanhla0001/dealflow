@@ -64,10 +64,10 @@ Open `http://127.0.0.1:8000`.
 
 ### Demo accounts
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Buyer | `buyer@dealflow.test` | `password` |
-| Seller | `seller@dealflow.test` | `password` |
+| Role          | Email                   | Password   |
+| ------------- | ----------------------- | ---------- |
+| Buyer         | `buyer@dealflow.test`   | `password` |
+| Seller        | `seller@dealflow.test`  | `password` |
 | Second seller | `seller2@dealflow.test` | `password` |
 
 The seed creates four demo deals: a paid deal with a captured PayPal sandbox payment, an approved deal ready for checkout, and two deals awaiting approvals. It also creates the negotiation transcripts and the notification inbox.
@@ -124,14 +124,14 @@ PayPal's webhook simulator can confirm the path without a real payment. A simula
 
 ## How the trust model works
 
-| Boundary | Enforced by | Behavior |
-| --- | --- | --- |
-| Buyer budget | `OfferValidator::assertBuyerProposal` | The buyer agent cannot propose or accept above `budget_minor`. |
-| Seller floor | `OfferValidator::assertSellerProposal` | The seller agent cannot accept below `seller_floor_minor`. |
-| Floor privacy | `NegotiationCoordinator` context | The buyer agent's context never includes `seller_floor_minor`. The buyer UI receives `Private`. |
-| Human approval | `ApproveAgreement` / `RejectAgreement` | Both parties must approve. One rejection cancels the deal. |
-| Money movement | `PaymentService` | Checkout requires an approved agreement and both approvals. Capture requires a PayPal order. |
-| Webhook integrity | `PayPalClient::verifyWebhook` | Every event is verified with PayPal before it is stored or applied. |
+| Boundary          | Enforced by                            | Behavior                                                                                        |
+| ----------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Buyer budget      | `OfferValidator::assertBuyerProposal`  | The buyer agent cannot propose or accept above `budget_minor`.                                  |
+| Seller floor      | `OfferValidator::assertSellerProposal` | The seller agent cannot accept below `seller_floor_minor`.                                      |
+| Floor privacy     | `NegotiationCoordinator` context       | The buyer agent's context never includes `seller_floor_minor`. The buyer UI receives `Private`. |
+| Human approval    | `ApproveAgreement` / `RejectAgreement` | Both parties must approve. One rejection cancels the deal.                                      |
+| Money movement    | `PaymentService`                       | Checkout requires an approved agreement and both approvals. Capture requires a PayPal order.    |
+| Webhook integrity | `PayPalClient::verifyWebhook`          | Every event is verified with PayPal before it is stored or applied.                             |
 
 The model is allowed to reason, propose, and explain. The validator, the approval actions, and PayPal own the irreversible steps.
 
@@ -155,8 +155,8 @@ The demo transcript for deal #4 is real model output: **$400 → $580 → $500**
 
 ## Screens
 
-| Deal room | Approved terms |
-| --- | --- |
+| Deal room                                      | Approved terms                             |
+| ---------------------------------------------- | ------------------------------------------ |
 | ![Negotiation](docs/screenshots/deal-room.png) | ![Approval](docs/screenshots/approval.png) |
 
 ## Tech stack

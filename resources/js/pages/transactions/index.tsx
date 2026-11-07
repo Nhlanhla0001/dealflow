@@ -124,8 +124,7 @@ export default function TransactionsIndex({
                                                             {transaction.title}
                                                         </Link>
                                                         <p className="mt-0.5 text-xs text-muted-foreground">
-                                                            #
-                                                            {transaction.id} ·{' '}
+                                                            #{transaction.id} ·{' '}
                                                             {
                                                                 transaction.delivery_days
                                                             }{' '}

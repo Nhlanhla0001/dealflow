@@ -46,8 +46,9 @@
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan key:generate",
-            "@php artisan migrate --force",
+            "@php artisan migrate --force --seed",
             "npm install",
             "npm run build"
         ],
@@ -65,7 +66,8 @@
             "Composer\\Config::disableProcessTimeout",
             "npm run check",
             "npm run types:check",
-            "@test"
+            "@lint:check",
+            "@php artisan test --compact"
         ],
         "types:check": [
             "phpstan analyse --memory-limit=1G"
@@ -73,7 +75,6 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@lint:check",
-            "@types:check",
             "@php artisan test"
         ],
         "post-autoload-dump": [

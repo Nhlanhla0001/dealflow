@@ -172,7 +172,9 @@ export default function Dashboard({
                     <CardContent>
                         {transactions.length === 0 ? (
                             <div className="rounded-lg border border-dashed p-8 text-center">
-                                <p className="font-medium">No transactions yet</p>
+                                <p className="font-medium">
+                                    No transactions yet
+                                </p>
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     {isBuyer
                                         ? 'Create your first request and invite a seller to negotiate.'
@@ -234,8 +236,7 @@ export default function Dashboard({
                                                             {transaction.title}
                                                         </Link>
                                                         <p className="mt-0.5 text-xs text-muted-foreground">
-                                                            #
-                                                            {transaction.id} ·{' '}
+                                                            #{transaction.id} ·{' '}
                                                             {
                                                                 transaction.delivery_days
                                                             }{' '}

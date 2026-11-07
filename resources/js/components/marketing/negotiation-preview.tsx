@@ -217,10 +217,7 @@ export function NegotiationPreview() {
             </div>
 
             <p className="mt-3 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-                <LockKeyhole
-                    className="mt-0.5 size-3.5 shrink-0"
-                    aria-hidden
-                />
+                <LockKeyhole className="mt-0.5 size-3.5 shrink-0" aria-hidden />
                 The seller floor is never included in the buyer agent's context.
                 Switch to seller view to see what the buyer cannot.
             </p>
