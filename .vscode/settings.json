@@ -1,0 +1,19 @@
+{
+    "intelephense.environment.phpVersion": "8.4.0",
+    "intelephense.environment.includePaths": [
+        "vendor"
+    ],
+    "intelephense.files.exclude": [
+        "**/.git/**",
+        "**/.svn/**",
+        "**/.hg/**",
+        "**/CVS/**",
+        "**/.DS_Store/**",
+        "**/node_modules/**",
+        "**/bower_components/**",
+        "**/storage/**",
+        "**/bootstrap/cache/**",
+        "**/public/build/**"
+    ],
+    "intelephense.diagnostics.undefinedTypes": true
+}
