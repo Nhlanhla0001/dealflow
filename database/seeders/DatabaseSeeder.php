@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -36,13 +35,6 @@ class DatabaseSeeder extends Seeder
             'email' => 'seller2@dealflow.test',
         ]);
 
-        Transaction::factory()->create([
-            'buyer_id' => $buyer->id,
-            'seller_id' => $seller->id,
-            'title' => 'Business website build',
-            'description' => 'A seven-page marketing site with a contact form, CMS, and launch support.',
-            'budget_minor' => 50000,
-            'delivery_days' => 7,
-        ]);
+        $this->call(DemoDealsSeeder::class);
     }
 }

@@ -70,7 +70,7 @@ Open `http://127.0.0.1:8000`.
 | Seller | `seller@dealflow.test` | `password` |
 | Second seller | `seller2@dealflow.test` | `password` |
 
-The seed creates a draft deal. The checked-in demo database is not required; migrate and seed a fresh one.
+The seed creates four demo deals: a paid deal with a captured PayPal sandbox payment, an approved deal ready for checkout, and two deals awaiting approvals. It also creates the negotiation transcripts and the notification inbox.
 
 ### PayPal sandbox
 
