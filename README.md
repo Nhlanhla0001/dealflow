@@ -45,7 +45,7 @@ The next slice connects the marketplace to the existing negotiation and payment 
 - **Buyer request wizard** at `/buyer/requests/new?service={slug}`: outcome, deliverables, private maximum budget, delivery window, essential/negotiable conditions, manual vs AI-assisted negotiation, review, and confirmation.
 - **Independent agent configuration** at `/transactions/{id}/agent`: provider/model, objective, private buyer maximum or seller floor, maximum delivery window, turn limit, AI spending limit, and activation.
 - **Private constraints are server-enforced.** A buyer's agent cannot exceed the transaction budget. A seller's floor cannot exceed their opening offer. Activation fails when the provider is unconfigured or the AI credit balance is insufficient.
-- **AI credit ledger** at `/ai/usage`: balance, idempotent credits/debits, and usage history. The demo adds a clearly labelled sandbox credit; no real AI funding charge is claimed.
+- **AI credit ledger** at `/ai/usage`: balance and idempotent credits/debits. The demo adds a clearly labelled sandbox credit; no real AI funding charge is claimed. Per-call usage metering is not enabled yet.
 - **Checkout wizard** at `/transactions/{id}/checkout`: seven steps covering agreement, amount, payment method, PayPal, server verification, result, and order.
 - **Orders** at `/orders`: paid orders become trackable records. Sellers start work, post progress, and submit delivery; buyers accept or request revisions within the agreed limit. A party can open a dispute, which changes the order status and records a timestamped event.
 

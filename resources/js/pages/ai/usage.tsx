@@ -60,9 +60,10 @@ export default function AiUsage({ balanceMinor, entries, usage }: Props) {
                             AI usage and credits
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                            Agent usage is metered separately from the deal
+                            AI credits are tracked separately from the deal
                             payment. Activation fails when the available budget
-                            is too low.
+                            is too low. Per-call usage metering is not enabled
+                            yet.
                         </p>
                     </div>
                     <Button type="button" onClick={addCredit}>
@@ -188,7 +189,8 @@ export default function AiUsage({ balanceMinor, entries, usage }: Props) {
                     <CardHeader>
                         <CardTitle>Recent usage</CardTitle>
                         <CardDescription>
-                            Recorded agent calls and their cost.
+                            Per-call records will appear here once model-call
+                            metering is enabled.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

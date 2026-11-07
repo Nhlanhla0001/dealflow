@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Http\Requests\StoreTransactionRequest;
+use App\Models\AgentConfiguration;
+use App\Models\PaymentOrder;
 use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\User;
@@ -113,6 +115,29 @@ class TransactionController extends Controller
             'order',
             'auditLogs' => fn ($query) => $query->latest()->limit(20),
         ])->hidePrivateFieldsFrom($request->user());
+
+        $user = $request->user();
+
+        $transaction->agentConfigurations->each(
+            function (AgentConfiguration $configuration) use ($user): void {
+                if ($configuration->user_id !== $user->id) {
+                    $configuration->makeHidden([
+                        'constraints',
+                        'objective',
+                        'spending_limit_minor',
+                        'billing_method',
+                    ]);
+                }
+            },
+        );
+
+        $transaction->paymentOrders->each(
+            function (PaymentOrder $paymentOrder) use ($user, $transaction): void {
+                if ($transaction->seller_id === $user->id) {
+                    $paymentOrder->makeHidden('paypal_approval_url');
+                }
+            },
+        );
 
         $agreement = $transaction->latestAgreement;
 

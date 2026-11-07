@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\AgreementStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\TransactionState;
+use App\Models\PaymentOrder;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,6 +28,10 @@ class CheckoutController extends Controller
         $agreement = $transaction->latestAgreement;
         $payment = $transaction->paymentOrders->sortByDesc('id')->first();
         $order = $transaction->order;
+
+        if ($payment instanceof PaymentOrder && $transaction->seller_id === $request->user()->id) {
+            $payment->makeHidden('paypal_approval_url');
+        }
 
         $canPay = $transaction->buyer_id === $request->user()->id
             && $transaction->state === TransactionState::Approved

@@ -60,10 +60,10 @@ export function PublishStep({ data, providers, balanceMinor }: AgentStepProps) {
                         className="size-4 text-muted-foreground"
                         aria-hidden
                     />
-                    <p className="mt-3 text-sm font-medium">Usage is metered</p>
+                    <p className="mt-3 text-sm font-medium">Budget is gated</p>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                        AI usage is recorded in the credit ledger, separate from
-                        the deal payment.
+                        The spending limit is checked against the credit ledger
+                        before activation. Per-call metering is the next step.
                     </p>
                 </div>
             </div>

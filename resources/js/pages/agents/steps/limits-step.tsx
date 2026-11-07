@@ -75,8 +75,8 @@ export function LimitsStep({
                 </p>
                 <p className="mt-1 leading-6 text-muted-foreground">
                     Activation fails if the spending limit is above the
-                    available balance. AI usage is recorded in the credit
-                    ledger.
+                    available balance. Per-call usage metering is the next step;
+                    the balance is already enforced at activation.
                 </p>
             </div>
         </div>
