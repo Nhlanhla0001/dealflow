@@ -18,10 +18,21 @@ import {
 } from '@/routes/transactions';
 import type { DealParty } from '@/types';
 
+type Prefill = {
+    service_id: number;
+    seller_id: number;
+    title: string;
+    description: string;
+    budget: number;
+    delivery_days: number;
+};
+
 export default function TransactionsCreate({
     sellers,
+    prefill = null,
 }: {
     sellers: DealParty[];
+    prefill?: Prefill | null;
 }) {
     return (
         <>
@@ -51,12 +62,36 @@ export default function TransactionsCreate({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
+                        {prefill && (
+                            <div className="mb-6 rounded-lg border border-border bg-muted/40 p-4">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                    Requesting a published service
+                                </p>
+                                <p className="mt-1 text-sm font-medium">
+                                    {prefill.title}
+                                </p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                    The listing details are prefilled. Adjust
+                                    the scope and budget before creating the
+                                    transaction.
+                                </p>
+                            </div>
+                        )}
+
                         <Form
                             {...transactionsStore.form()}
                             className="space-y-6"
                         >
                             {({ processing, errors }) => (
                                 <>
+                                    {prefill && (
+                                        <input
+                                            type="hidden"
+                                            name="service_id"
+                                            value={prefill.service_id}
+                                        />
+                                    )}
+
                                     <div className="grid gap-2">
                                         <Label htmlFor="title">
                                             What do you need?
@@ -64,6 +99,7 @@ export default function TransactionsCreate({
                                         <Input
                                             id="title"
                                             name="title"
+                                            defaultValue={prefill?.title}
                                             placeholder="Business website build"
                                             required
                                             autoFocus
@@ -78,6 +114,7 @@ export default function TransactionsCreate({
                                         <textarea
                                             id="description"
                                             name="description"
+                                            defaultValue={prefill?.description}
                                             required
                                             rows={5}
                                             placeholder="A seven-page marketing site with a contact form, CMS, and launch support."
@@ -98,7 +135,9 @@ export default function TransactionsCreate({
                                                 name="seller_id"
                                                 required
                                                 defaultValue={
-                                                    sellers[0]?.id ?? ''
+                                                    prefill?.seller_id ??
+                                                    sellers[0]?.id ??
+                                                    ''
                                                 }
                                                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                                             >
@@ -129,6 +168,7 @@ export default function TransactionsCreate({
                                                 type="number"
                                                 min="1"
                                                 step="0.01"
+                                                defaultValue={prefill?.budget}
                                                 placeholder="500"
                                                 required
                                             />
@@ -152,6 +192,9 @@ export default function TransactionsCreate({
                                             type="number"
                                             min="1"
                                             max="365"
+                                            defaultValue={
+                                                prefill?.delivery_days
+                                            }
                                             placeholder="7"
                                             required
                                         />

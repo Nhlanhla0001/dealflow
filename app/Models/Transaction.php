@@ -33,6 +33,7 @@ use InvalidArgumentException;
 #[Fillable([
     'buyer_id',
     'seller_id',
+    'service_id',
     'title',
     'description',
     'currency',
@@ -71,6 +72,11 @@ class Transaction extends Model
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(Service::class);
     }
 
     public function offer(): HasOne

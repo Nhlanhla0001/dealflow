@@ -35,5 +35,27 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertDatabaseHas('users', [
+            'email' => 'test@example.com',
+            'role' => 'buyer',
+        ]);
+    }
+
+    public function test_new_users_can_register_as_a_seller()
+    {
+        $response = $this->post(route('register.store'), [
+            'name' => 'Test Seller',
+            'email' => 'seller@example.com',
+            'role' => 'seller',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertDatabaseHas('users', [
+            'email' => 'seller@example.com',
+            'role' => 'seller',
+        ]);
     }
 }

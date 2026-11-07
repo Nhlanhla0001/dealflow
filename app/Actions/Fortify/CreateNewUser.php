@@ -6,6 +6,7 @@ use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -21,12 +22,14 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
+            'role' => ['sometimes', Rule::in(['buyer', 'seller', 'both'])],
             'password' => $this->passwordRules(),
         ])->validate();
 
         return User::create([
             'name' => $input['name'],
             'email' => $input['email'],
+            'role' => $input['role'] ?? 'buyer',
             'password' => $input['password'],
         ]);
     }

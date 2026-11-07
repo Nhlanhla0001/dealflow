@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Bell,
     BookOpen,
+    BriefcaseBusiness,
     FolderGit2,
     Handshake,
     LayoutGrid,
@@ -51,19 +52,36 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-    const { unreadNotifications = 0 } = usePage<{
+    const { unreadNotifications = 0, auth } = usePage<{
         unreadNotifications?: number;
+        auth?: {
+            user?: {
+                role?: string;
+            } | null;
+        };
     }>().props;
 
-    const navItems: NavItem[] = [
-        ...mainNavItems,
-        {
-            title: 'Notifications',
-            href: notificationsIndex(),
-            icon: Bell,
-            badge: unreadNotifications,
-        },
-    ];
+    const isSeller =
+        auth?.user?.role === 'seller' ||
+        auth?.user?.role === 'both' ||
+        auth?.user?.role === 'admin';
+
+    const navItems: NavItem[] = [...mainNavItems];
+
+    if (isSeller) {
+        navItems.push({
+            title: 'My services',
+            href: '/seller/services',
+            icon: BriefcaseBusiness,
+        });
+    }
+
+    navItems.push({
+        title: 'Notifications',
+        href: notificationsIndex(),
+        icon: Bell,
+        badge: unreadNotifications,
+    });
 
     return (
         <Sidebar collapsible="icon" variant="inset">

@@ -59,11 +59,35 @@ export default function Register({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
+                                <Label htmlFor="role">
+                                    How will you use DealFlow?
+                                </Label>
+                                <select
+                                    id="role"
+                                    name="role"
+                                    defaultValue="buyer"
+                                    tabIndex={3}
+                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                >
+                                    <option value="buyer">
+                                        I want to buy services
+                                    </option>
+                                    <option value="seller">
+                                        I want to sell services
+                                    </option>
+                                    <option value="both">
+                                        I want to buy and sell
+                                    </option>
+                                </select>
+                                <InputError message={errors.role} />
+                            </div>
+
+                            <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
                                 <PasswordInput
                                     id="password"
                                     required
-                                    tabIndex={3}
+                                    tabIndex={4}
                                     autoComplete="new-password"
                                     name="password"
                                     placeholder="Password"
@@ -79,7 +103,7 @@ export default function Register({ passwordRules }: Props) {
                                 <PasswordInput
                                     id="password_confirmation"
                                     required
-                                    tabIndex={4}
+                                    tabIndex={5}
                                     autoComplete="new-password"
                                     name="password_confirmation"
                                     placeholder="Confirm password"
@@ -93,7 +117,7 @@ export default function Register({ passwordRules }: Props) {
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
-                                tabIndex={5}
+                                tabIndex={6}
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
@@ -103,7 +127,7 @@ export default function Register({ passwordRules }: Props) {
 
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
+                            <TextLink href={login()} tabIndex={7}>
                                 Log in
                             </TextLink>
                         </div>

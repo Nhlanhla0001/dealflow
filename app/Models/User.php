@@ -62,13 +62,28 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         return $this->hasMany(Transaction::class, 'seller_id');
     }
 
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class, 'seller_id');
+    }
+
+    public function wizardDrafts(): HasMany
+    {
+        return $this->hasMany(WizardDraft::class);
+    }
+
     public function isBuyer(): bool
     {
-        return $this->role === UserRole::Buyer;
+        return $this->role->canBuy();
     }
 
     public function isSeller(): bool
     {
-        return $this->role === UserRole::Seller;
+        return $this->role->canSell();
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::Admin;
     }
 }

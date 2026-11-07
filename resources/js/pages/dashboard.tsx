@@ -95,7 +95,10 @@ export default function Dashboard({
     stats: DealStats;
 }) {
     const { auth } = usePage<PageProps>().props;
-    const isBuyer = auth.user.role === 'buyer';
+    const isBuyer =
+        auth.user.role === 'buyer' ||
+        auth.user.role === 'both' ||
+        auth.user.role === 'admin';
 
     return (
         <>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Http\Requests\StoreTransactionRequest;
+use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\AuditService;
@@ -30,17 +31,43 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $this->authorize('create', Transaction::class);
 
         $sellers = User::query()
-            ->where('role', UserRole::Seller->value)
+            ->whereIn('role', [
+                UserRole::Seller->value,
+                UserRole::Both->value,
+                UserRole::Admin->value,
+            ])
             ->orderBy('name')
             ->get(['id', 'name', 'email']);
 
+        $prefill = null;
+
+        if ($request->filled('service')) {
+            $service = Service::query()
+                ->published()
+                ->with('seller:id,name,email')
+                ->where('slug', $request->string('service')->toString())
+                ->first();
+
+            if ($service !== null) {
+                $prefill = [
+                    'service_id' => $service->id,
+                    'seller_id' => $service->seller_id,
+                    'title' => $service->title,
+                    'description' => $service->description,
+                    'budget' => $service->price_minor / 100,
+                    'delivery_days' => $service->delivery_days,
+                ];
+            }
+        }
+
         return Inertia::render('transactions/create', [
             'sellers' => $sellers,
+            'prefill' => $prefill,
         ]);
     }
 
@@ -49,6 +76,7 @@ class TransactionController extends Controller
         $transaction = Transaction::create([
             'buyer_id' => $request->user()->id,
             'seller_id' => $request->integer('seller_id'),
+            'service_id' => $request->filled('service_id') ? $request->integer('service_id') : null,
             'title' => $request->string('title')->toString(),
             'description' => $request->string('description')->toString(),
             'currency' => 'USD',
@@ -76,6 +104,7 @@ class TransactionController extends Controller
         $transaction->load([
             'buyer:id,name,email',
             'seller:id,name,email',
+            'service:id,title,slug',
             'offer',
             'negotiationSession.messages',
             'latestAgreement.approvals',

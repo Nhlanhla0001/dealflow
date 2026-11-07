@@ -23,6 +23,23 @@ Most "AI negotiation" demos are a chat window with a script. DealFlow AI is buil
 - PayPal creates the order, captures the payment, and signs the webhook.
 - Every step is written to an audit trail.
 
+## Marketplace and seller wizard
+
+This repository now includes the first complete marketplace slice:
+
+- **Public discovery** at `/services`, with category pages, seller profiles, search, price filters, sorting, pagination, canonical URLs, structured data, and `/sitemap.xml`.
+- **Eight-step seller listing wizard** at `/seller/services/new`: category, basics, pricing, delivery, media, negotiation, preview, and publish.
+- **Persistent wizard drafts** in `wizard_drafts`, scoped to the authenticated owner, with 30-day expiry, optimistic concurrency (`version`), step-specific server validation, and resumable progress.
+- **Review and confirmation** before publishing. Publishing creates a real `services` row and writes an audit entry.
+- **Seller management** at `/seller/services`: edit, unpublish, republish, and archive listings.
+- **Buyer handoff**: a published service can prefill an existing transaction request at `/transactions/create?service={slug}`.
+
+The next marketplace slices are the buyer request wizard, independent buyer/seller agent configuration, AI usage budgets, order fulfilment, and disputes.
+
+![Marketplace](docs/screenshots/marketplace.png)
+
+![Seller listing wizard](docs/screenshots/seller-wizard.png)
+
 ## Demo
 
 ### Run locally
@@ -188,9 +205,14 @@ app/
   Ai/Agents/                 Buyer and seller negotiation agents
   Actions/Agreements/        Human approval and rejection
   Actions/Transactions/      Negotiation start
-  Http/Controllers/          Dashboard, transactions, payments, webhooks
-  Models/                    Transactions, offers, agreements, payments, audit
-  Services/                  Negotiation coordinator, validator, PayPal client
+  Http/Controllers/          Dashboard, transactions, marketplace, wizard, payments
+  Models/                    Transactions, services, categories, wizard drafts, audit
+  Services/                  Negotiation coordinator, validator, wizard drafts, PayPal
+  Support/Wizard/            Step definitions and seller listing wizard
+resources/js/
+  components/wizard/         Reusable wizard layout, progress, navigation, review
+  pages/marketplace/         Public discovery pages
+  pages/seller/services/     Seller list and listing wizard
 resources/js/pages/          Inertia pages, including the landing page
 tests/Feature/               HTTP and workflow tests
 ```
@@ -202,6 +224,7 @@ tests/Feature/               HTTP and workflow tests
 - All payment flows use the PayPal sandbox.
 - The AI has no tool that can approve terms or capture a payment.
 - Webhook deliveries are rejected unless PayPal verifies the signature.
+- Wizard drafts are scoped to their owner and checked server-side on every read and write.
 - The demo is not a production marketplace: it has no KYC, disputes, refunds, or multi-tenant isolation.
 
 ## License

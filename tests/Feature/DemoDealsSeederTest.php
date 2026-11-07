@@ -22,6 +22,11 @@ class DemoDealsSeederTest extends TestCase
         $this->assertDatabaseCount('agreements', 4);
         $this->assertDatabaseCount('payment_orders', 1);
         $this->assertDatabaseCount('notifications', 6);
+        $this->assertDatabaseCount('categories', 6);
+        $this->assertDatabaseCount('services', 3);
+        $this->assertDatabaseHas('services', [
+            'status' => 'published',
+        ]);
 
         $buyer = User::query()->where('email', 'buyer@dealflow.test')->firstOrFail();
         $seller = User::query()->where('email', 'seller@dealflow.test')->firstOrFail();

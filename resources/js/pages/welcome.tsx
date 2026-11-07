@@ -8,8 +8,10 @@ import {
     Wallet,
 } from 'lucide-react';
 import { NegotiationPreview } from '@/components/marketing/negotiation-preview';
+import { ServiceCard } from '@/components/marketplace/service-card';
 import { dashboard, login, register } from '@/routes';
 import { show as transactionsShow } from '@/routes/transactions';
+import type { MarketplaceCategory, MarketplaceService } from '@/types';
 
 const limits = [
     {
@@ -83,7 +85,15 @@ const tools = [
     ['Automated tests', 'Negotiation, approval, rejection, and payment paths.'],
 ];
 
-export default function Welcome() {
+type Props = {
+    categories?: MarketplaceCategory[];
+    featuredServices?: MarketplaceService[];
+};
+
+export default function Welcome({
+    categories = [],
+    featuredServices = [],
+}: Props) {
     const { auth } = usePage().props;
 
     return (
@@ -106,6 +116,12 @@ export default function Welcome() {
                         </Link>
 
                         <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
+                            <Link
+                                href="/services"
+                                className="transition-colors hover:text-foreground"
+                            >
+                                Marketplace
+                            </Link>
                             <a
                                 href="#trust"
                                 className="transition-colors hover:text-foreground"
@@ -260,6 +276,78 @@ export default function Welcome() {
                         </div>
 
                         <NegotiationPreview />
+                    </section>
+
+                    <section className="border-t border-border bg-muted/30">
+                        <div className="mx-auto w-full max-w-6xl px-6 py-16 lg:py-24">
+                            <div className="flex flex-wrap items-end justify-between gap-4">
+                                <div className="max-w-2xl">
+                                    <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                                        Services with the terms already spelled
+                                        out.
+                                    </h2>
+                                    <p className="mt-4 text-base leading-7 text-muted-foreground">
+                                        Browse published services, see the
+                                        deliverables and delivery window, then
+                                        start a structured request. No ratings
+                                        theatre and no hidden placement.
+                                    </p>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <Link
+                                        href="/services"
+                                        className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                                    >
+                                        Browse all services
+                                        <ArrowRight
+                                            className="size-4"
+                                            aria-hidden
+                                        />
+                                    </Link>
+                                    <Link
+                                        href="/seller/services"
+                                        className="inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90"
+                                    >
+                                        Sell a service
+                                    </Link>
+                                </div>
+                            </div>
+
+                            {categories.length > 0 && (
+                                <div className="mt-6 flex flex-wrap gap-2">
+                                    {categories.map((category) => (
+                                        <Link
+                                            key={category.id}
+                                            href={`/categories/${category.slug}`}
+                                            className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+                                        >
+                                            {category.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+
+                            {featuredServices.length > 0 ? (
+                                <div className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+                                    {featuredServices.map((service) => (
+                                        <ServiceCard
+                                            key={service.id}
+                                            service={service}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="mt-8 rounded-xl border border-dashed p-8 text-center">
+                                    <p className="font-medium">
+                                        The marketplace is just getting started
+                                    </p>
+                                    <p className="mt-1 text-sm text-muted-foreground">
+                                        Publish the first service and give
+                                        buyers something concrete to request.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </section>
 
                     <section

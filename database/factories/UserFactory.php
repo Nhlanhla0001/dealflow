@@ -61,6 +61,20 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function both(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'role' => UserRole::Both,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'role' => UserRole::Admin,
+        ]);
+    }
+
     /**
      * Indicate that the model has two-factor authentication configured.
      */
