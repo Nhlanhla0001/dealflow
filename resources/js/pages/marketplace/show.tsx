@@ -248,7 +248,7 @@ export default function MarketplaceShow({
                                 {canBuy ? (
                                     <Button asChild className="w-full">
                                         <Link
-                                            href={`/transactions/create?service=${service.slug}`}
+                                            href={`/buyer/requests/new?service=${service.slug}`}
                                         >
                                             Request this service
                                             <ArrowRight

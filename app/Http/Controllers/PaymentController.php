@@ -72,7 +72,7 @@ class PaymentController extends Controller
             ]);
         }
 
-        return to_route('transactions.show', $paymentOrder->transaction_id);
+        return to_route('checkout.show', $paymentOrder->transaction_id);
     }
 
     public function cancel(Request $request, PaymentOrder $paymentOrder): RedirectResponse

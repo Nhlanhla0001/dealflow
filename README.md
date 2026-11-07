@@ -34,11 +34,24 @@ This repository now includes the first complete marketplace slice:
 - **Seller management** at `/seller/services`: edit, unpublish, republish, and archive listings.
 - **Buyer handoff**: a published service can prefill an existing transaction request at `/transactions/create?service={slug}`.
 
-The next marketplace slices are the buyer request wizard, independent buyer/seller agent configuration, AI usage budgets, order fulfilment, and disputes.
-
 ![Marketplace](docs/screenshots/marketplace.png)
 
 ![Seller listing wizard](docs/screenshots/seller-wizard.png)
+
+## Buyer requests, agents, credits, checkout, and orders
+
+The next slice connects the marketplace to the existing negotiation and payment engine:
+
+- **Buyer request wizard** at `/buyer/requests/new?service={slug}`: outcome, deliverables, private maximum budget, delivery window, essential/negotiable conditions, manual vs AI-assisted negotiation, review, and confirmation.
+- **Independent agent configuration** at `/transactions/{id}/agent`: provider/model, objective, private buyer maximum or seller floor, maximum delivery window, turn limit, AI spending limit, and activation.
+- **Private constraints are server-enforced.** A buyer's agent cannot exceed the transaction budget. A seller's floor cannot exceed their opening offer. Activation fails when the provider is unconfigured or the AI credit balance is insufficient.
+- **AI credit ledger** at `/ai/usage`: balance, idempotent credits/debits, and usage history. The demo adds a clearly labelled sandbox credit; no real AI funding charge is claimed.
+- **Checkout wizard** at `/transactions/{id}/checkout`: seven steps covering agreement, amount, payment method, PayPal, server verification, result, and order.
+- **Orders** at `/orders`: paid orders become trackable records. Sellers start work, post progress, and submit delivery; buyers accept or request revisions within the agreed limit. A party can open a dispute, which changes the order status and records a timestamped event.
+
+![Checkout wizard](docs/screenshots/checkout.png)
+
+**Still to build:** a dedicated multi-step dispute centre with evidence and administrator resolution, a full admin console, provider-account billing (the ledger currently supports prepaid sandbox credits), token-accurate usage recording on every model call, and a formal five-step onboarding wizard. The order-level dispute action is intentionally minimal and does not claim an escrow or refund capability.
 
 ## Demo
 

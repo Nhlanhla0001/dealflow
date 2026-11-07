@@ -92,6 +92,7 @@ export function useWizard({
 
             const payload = (await response.json().catch(() => ({}))) as {
                 draft?: WizardDraft;
+                redirect?: string;
                 service?: { url: string };
                 message?: string;
                 errors?: WizardErrors;
@@ -197,8 +198,10 @@ export function useWizard({
                 version,
             });
 
-            if (payload?.service?.url) {
-                router.visit(payload.service.url);
+            const destination = payload?.redirect ?? payload?.service?.url;
+
+            if (destination) {
+                router.visit(destination);
 
                 return true;
             }

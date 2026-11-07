@@ -72,6 +72,16 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         return $this->hasMany(WizardDraft::class);
     }
 
+    public function agentConfigurations(): HasMany
+    {
+        return $this->hasMany(AgentConfiguration::class);
+    }
+
+    public function aiCreditLedgerEntries(): HasMany
+    {
+        return $this->hasMany(AiCreditLedgerEntry::class);
+    }
+
     public function isBuyer(): bool
     {
         return $this->role->canBuy();

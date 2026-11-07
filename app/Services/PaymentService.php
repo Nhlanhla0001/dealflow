@@ -6,6 +6,7 @@ use App\Enums\AgreementStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\TransactionState;
 use App\Models\Agreement;
+use App\Models\Order;
 use App\Models\PaymentEvent;
 use App\Models\PaymentOrder;
 use App\Models\Transaction;
@@ -122,6 +123,8 @@ class PaymentService
             $transaction->transitionTo(TransactionState::Paid);
         }
 
+        $this->createOrderRecord($transaction, $paymentOrder);
+
         $this->audit->record($transaction->buyer, $transaction, 'payment.captured', [
             'payment_order_id' => $paymentOrder->id,
             'capture_id' => $captureId,
@@ -183,6 +186,8 @@ class PaymentService
                     $transaction->transitionTo(TransactionState::Paid);
                 }
 
+                $this->createOrderRecord($transaction, $paymentOrder);
+
                 $this->audit->record(null, $transaction, 'payment.webhook_captured', [
                     'payment_order_id' => $paymentOrder->id,
                     'capture_id' => $captureId,
@@ -191,6 +196,21 @@ class PaymentService
         }
 
         $event->update(['processed_at' => now()]);
+    }
+
+    private function createOrderRecord(Transaction $transaction, PaymentOrder $paymentOrder): void
+    {
+        Order::query()->firstOrCreate(
+            ['transaction_id' => $transaction->id],
+            [
+                'buyer_id' => $transaction->buyer_id,
+                'seller_id' => $transaction->seller_id,
+                'amount_minor' => $paymentOrder->amount_minor,
+                'currency' => $paymentOrder->currency,
+                'status' => 'paid',
+                'paid_at' => now(),
+            ],
+        );
     }
 
     /**

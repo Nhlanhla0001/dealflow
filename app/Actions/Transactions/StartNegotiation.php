@@ -28,11 +28,27 @@ class StartNegotiation
             throw new InvalidArgumentException('Negotiation has already started for this transaction.');
         }
 
-        $session = DB::transaction(function () use ($transaction): NegotiationSession {
+        $configurations = $transaction->agentConfigurations()
+            ->where('status', 'active')
+            ->get();
+
+        if ($transaction->negotiation_mode === 'ai') {
+            $roles = $configurations->pluck('role')->all();
+
+            if (! in_array('buyer', $roles, true) || ! in_array('seller', $roles, true)) {
+                throw new InvalidArgumentException('Both parties must activate their AI agents before AI-assisted negotiation.');
+            }
+        }
+
+        $maxRounds = $configurations->isEmpty()
+            ? 5
+            : max(1, min(5, (int) $configurations->min('max_turns')));
+
+        $session = DB::transaction(function () use ($transaction, $maxRounds): NegotiationSession {
             $session = $transaction->negotiationSession()->create([
                 'status' => NegotiationStatus::Pending,
                 'round' => 0,
-                'max_rounds' => 5,
+                'max_rounds' => $maxRounds,
             ]);
 
             $transaction->transitionTo(TransactionState::Negotiating);

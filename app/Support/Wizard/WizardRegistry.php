@@ -6,12 +6,18 @@ use InvalidArgumentException;
 
 class WizardRegistry
 {
-    public function __construct(private readonly SellerListingWizard $sellerListing) {}
+    public function __construct(
+        private readonly SellerListingWizard $sellerListing,
+        private readonly BuyerRequestWizard $buyerRequest,
+        private readonly AgentConfigurationWizard $agentConfiguration,
+    ) {}
 
     public function for(string $type): WizardDefinition
     {
         return match ($type) {
             'seller_listing' => $this->sellerListing,
+            'buyer_request' => $this->buyerRequest,
+            'agent_config' => $this->agentConfiguration,
             default => throw new InvalidArgumentException("Unknown wizard type [{$type}]."),
         };
     }

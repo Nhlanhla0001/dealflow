@@ -2,6 +2,7 @@ import { Form, Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowLeft,
     ArrowRight,
+    Bot,
     CheckCircle2,
     CircleDollarSign,
     FileText,
@@ -66,6 +67,13 @@ export default function TransactionsShow({
     const isBuyer = transaction.buyer_id === auth.user.id;
     const isSeller = transaction.seller_id === auth.user.id;
     const counterparty = isBuyer ? transaction.seller : transaction.buyer;
+    const buyerAgent = transaction.agent_configurations?.find(
+        (configuration) => configuration.role === 'buyer',
+    );
+    const sellerAgent = transaction.agent_configurations?.find(
+        (configuration) => configuration.role === 'seller',
+    );
+    const myAgent = isBuyer ? buyerAgent : sellerAgent;
     const canStartNegotiation =
         isBuyer &&
         transaction.state === 'draft' &&
@@ -635,15 +643,35 @@ export default function TransactionsShow({
                                                 Payment verified by PayPal.
                                             </p>
                                         )}
+                                        {transaction.order && (
+                                            <Button
+                                                asChild
+                                                variant="outline"
+                                                size="sm"
+                                            >
+                                                <Link
+                                                    href={`/orders/${transaction.order.id}`}
+                                                >
+                                                    Track order
+                                                </Link>
+                                            </Button>
+                                        )}
                                     </div>
                                 ) : transaction.state === 'approved' &&
                                   isBuyer ? (
                                     <div className="space-y-3">
                                         <p className="text-sm text-muted-foreground">
                                             Both parties approved the agreement.
-                                            Continue to PayPal to complete the
-                                            sandbox payment.
+                                            Review the checkout steps and
+                                            continue to PayPal.
                                         </p>
+                                        <Button asChild variant="outline">
+                                            <Link
+                                                href={`/transactions/${transaction.id}/checkout`}
+                                            >
+                                                Review checkout
+                                            </Link>
+                                        </Button>
                                         <form
                                             method="POST"
                                             action={checkoutStore.url({
@@ -717,6 +745,63 @@ export default function TransactionsShow({
                                         {auth.user.name}
                                     </p>
                                 </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Bot className="size-4" />
+                                    AI agents
+                                </CardTitle>
+                                <CardDescription>
+                                    Each side configures its own agent and
+                                    private limits.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4 text-sm">
+                                <div className="flex items-center justify-between gap-3">
+                                    <span className="text-muted-foreground">
+                                        Buyer agent
+                                    </span>
+                                    <span className="font-medium">
+                                        {buyerAgent
+                                            ? `${buyerAgent.provider} · ${buyerAgent.model}`
+                                            : 'Not configured'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between gap-3">
+                                    <span className="text-muted-foreground">
+                                        Seller agent
+                                    </span>
+                                    <span className="font-medium">
+                                        {sellerAgent
+                                            ? `${sellerAgent.provider} · ${sellerAgent.model}`
+                                            : 'Not configured'}
+                                    </span>
+                                </div>
+
+                                {myAgent ? (
+                                    <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs leading-5 text-muted-foreground">
+                                        Your agent is {myAgent.status} with{' '}
+                                        {myAgent.max_turns} turns and{' '}
+                                        {formatMoney(
+                                            myAgent.spending_limit_minor,
+                                            'USD',
+                                        )}{' '}
+                                        of AI budget.
+                                    </div>
+                                ) : (
+                                    <Button asChild className="w-full">
+                                        <Link
+                                            href={`/transactions/${transaction.id}/agent`}
+                                        >
+                                            <Bot className="size-4" />
+                                            Configure{' '}
+                                            {isBuyer ? 'buyer' : 'seller'} agent
+                                        </Link>
+                                    </Button>
+                                )}
                             </CardContent>
                         </Card>
 

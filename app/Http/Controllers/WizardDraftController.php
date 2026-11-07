@@ -73,7 +73,7 @@ class WizardDraftController extends Controller
         $this->authorize('publish', $draft);
 
         try {
-            $service = $wizards->publish($draft, $request->validated('version'));
+            $result = $wizards->publish($draft, $request->validated('version'));
         } catch (WizardConflictException $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
@@ -83,12 +83,20 @@ class WizardDraftController extends Controller
             return response()->json(['message' => $exception->getMessage()], 410);
         }
 
-        return response()->json([
-            'service' => [
-                'slug' => $service->slug,
-                'url' => route('services.show', $service),
-            ],
-        ], 201);
+        $payload = [
+            'redirect' => $result->url,
+            'type' => $result->type,
+            'id' => $result->id,
+        ];
+
+        if ($result->type === 'service') {
+            $payload['service'] = [
+                'slug' => $result->meta['slug'] ?? null,
+                'url' => $result->url,
+            ];
+        }
+
+        return response()->json($payload, 201);
     }
 
     public function destroy(

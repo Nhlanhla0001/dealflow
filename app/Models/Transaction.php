@@ -42,6 +42,7 @@ use InvalidArgumentException;
     'seller_offer_minor',
     'delivery_days',
     'seller_delivery_days',
+    'negotiation_mode',
     'state',
 ])]
 class Transaction extends Model
@@ -102,6 +103,16 @@ class Transaction extends Model
     public function paymentOrders(): HasMany
     {
         return $this->hasMany(PaymentOrder::class);
+    }
+
+    public function agentConfigurations(): HasMany
+    {
+        return $this->hasMany(AgentConfiguration::class);
+    }
+
+    public function order(): HasOne
+    {
+        return $this->hasOne(Order::class);
     }
 
     public function auditLogs(): HasMany

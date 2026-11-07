@@ -1,11 +1,16 @@
 <?php
 
+use App\Http\Controllers\AgentConfigurationController;
 use App\Http\Controllers\AgreementApprovalController;
+use App\Http\Controllers\AiUsageController;
+use App\Http\Controllers\BuyerRequestController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\NegotiationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\SellerServiceController;
@@ -24,6 +29,17 @@ Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('ai/usage', [AiUsageController::class, 'index'])->name('ai.usage');
+    Route::post('ai/credits', [AiUsageController::class, 'store'])->name('ai.credits.store');
+
+    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('orders/{order}/start', [OrderController::class, 'start'])->name('orders.start');
+    Route::post('orders/{order}/progress', [OrderController::class, 'progress'])->name('orders.progress');
+    Route::post('orders/{order}/deliver', [OrderController::class, 'deliver'])->name('orders.deliver');
+    Route::post('orders/{order}/accept', [OrderController::class, 'accept'])->name('orders.accept');
+    Route::post('orders/{order}/revision', [OrderController::class, 'revision'])->name('orders.revision');
+    Route::post('orders/{order}/dispute', [OrderController::class, 'dispute'])->name('orders.dispute');
 
     Route::resource('transactions', TransactionController::class)
         ->only(['index', 'create', 'store', 'show']);
@@ -37,8 +53,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('agreements/{agreement}/reject', [AgreementApprovalController::class, 'reject'])
         ->name('agreements.reject');
 
+    Route::get('transactions/{transaction}/checkout', [CheckoutController::class, 'show'])
+        ->name('checkout.show');
     Route::post('transactions/{transaction}/checkout', [PaymentController::class, 'store'])
         ->name('transactions.checkout');
+
+    Route::get('transactions/{transaction}/agent', [AgentConfigurationController::class, 'create'])
+        ->name('agents.create');
+    Route::get('agent-drafts/{draft}', [AgentConfigurationController::class, 'wizard'])
+        ->name('agents.wizard');
+
+    Route::get('buyer/requests/new', [BuyerRequestController::class, 'create'])
+        ->name('buyer.requests.create');
+    Route::get('buyer/requests/drafts/{draft}', [BuyerRequestController::class, 'wizard'])
+        ->name('buyer.requests.wizard');
 
     Route::get('seller/services', [SellerServiceController::class, 'index'])
         ->name('seller.services.index');

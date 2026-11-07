@@ -64,6 +64,29 @@ class NegotiationTest extends TestCase
         ]);
     }
 
+    public function test_ai_negotiation_requires_both_agents_to_be_active(): void
+    {
+        $transaction = Transaction::factory()->create([
+            'state' => TransactionState::Draft,
+            'negotiation_mode' => 'ai',
+        ]);
+
+        $transaction->offer()->create([
+            'seller_id' => $transaction->seller_id,
+            'price_minor' => 50000,
+            'currency' => 'USD',
+            'delivery_days' => 7,
+            'terms' => 'Listed terms.',
+            'status' => OfferStatus::Active,
+        ]);
+
+        $this->actingAs($transaction->buyer)
+            ->post(route('transactions.negotiate', $transaction))
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('negotiation_sessions', 0);
+    }
+
     public function test_buyer_cannot_submit_a_seller_offer(): void
     {
         $transaction = Transaction::factory()->create([

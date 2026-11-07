@@ -78,13 +78,18 @@ class PaymentTest extends TestCase
 
         $this->actingAs($transaction->buyer)
             ->get($returnUrl)
-            ->assertRedirect(route('transactions.show', $transaction));
+            ->assertRedirect(route('checkout.show', $transaction));
 
         $paymentOrder->refresh();
 
         $this->assertSame(PaymentStatus::Captured, $paymentOrder->status);
         $this->assertSame('CAP123', $paymentOrder->capture_id);
         $this->assertSame(TransactionState::Paid, $transaction->fresh()->state);
+        $this->assertDatabaseHas('orders', [
+            'transaction_id' => $transaction->id,
+            'status' => 'paid',
+            'amount_minor' => 50000,
+        ]);
     }
 
     public function test_cancelling_paypal_checkout_cancels_the_transaction(): void
@@ -136,6 +141,10 @@ class PaymentTest extends TestCase
         $this->assertSame(PaymentStatus::Captured, $paymentOrder->fresh()->status);
         $this->assertSame(TransactionState::Paid, $transaction->fresh()->state);
         $this->assertDatabaseCount('payment_events', 1);
+        $this->assertDatabaseHas('orders', [
+            'transaction_id' => $transaction->id,
+            'status' => 'paid',
+        ]);
 
         $this->postJson(route('webhooks.paypal'), $payload, $this->webhookHeaders())
             ->assertOk();

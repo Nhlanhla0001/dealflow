@@ -75,6 +75,22 @@ export type DealPaymentOrder = {
     created_at: string;
 };
 
+export type DealAgentConfiguration = {
+    id: number;
+    user_id: number;
+    transaction_id: number;
+    role: 'buyer' | 'seller';
+    provider: string;
+    model: string;
+    objective: string;
+    constraints: Record<string, unknown> | null;
+    max_turns: number;
+    spending_limit_minor: number;
+    billing_method: string;
+    status: 'draft' | 'active' | 'paused';
+    activated_at: string | null;
+};
+
 export type DealAuditLog = {
     id: number;
     action: string;
@@ -98,6 +114,7 @@ export type DealTransaction = {
     seller_offer_minor: number | null;
     delivery_days: number;
     seller_delivery_days: number | null;
+    negotiation_mode: 'manual' | 'ai';
     state: TransactionState;
     created_at: string;
     updated_at: string;
@@ -106,7 +123,14 @@ export type DealTransaction = {
     offer?: DealOffer | null;
     negotiation_session?: DealNegotiationSession | null;
     latest_agreement?: DealAgreement | null;
+    agent_configurations?: DealAgentConfiguration[];
     payment_orders?: DealPaymentOrder[];
+    order?: {
+        id: number;
+        status: string;
+        amount_minor: number;
+        currency: string;
+    } | null;
     audit_logs?: DealAuditLog[];
 };
 

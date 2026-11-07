@@ -108,7 +108,9 @@ class TransactionController extends Controller
             'offer',
             'negotiationSession.messages',
             'latestAgreement.approvals',
+            'agentConfigurations',
             'paymentOrders',
+            'order',
             'auditLogs' => fn ($query) => $query->latest()->limit(20),
         ])->hidePrivateFieldsFrom($request->user());
 

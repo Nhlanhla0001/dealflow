@@ -5,11 +5,14 @@ namespace App\Services;
 use App\Enums\WizardStatus;
 use App\Exceptions\WizardConflictException;
 use App\Exceptions\WizardExpiredException;
+use App\Models\AgentConfiguration;
 use App\Models\AuditLog;
 use App\Models\Service;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WizardDraft;
 use App\Support\Wizard\WizardDefinition;
+use App\Support\Wizard\WizardPublishResult;
 use App\Support\Wizard\WizardRegistry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -74,6 +77,68 @@ class WizardDraftService
         return $draft->fresh();
     }
 
+    public function startForBuyerRequest(User $user, Service $service): WizardDraft
+    {
+        $draft = $this->start($user, 'buyer_request', $service);
+
+        if ($draft->wasRecentlyCreated) {
+            $data = [
+                'service_id' => $service->id,
+                'title' => $service->title,
+                'description' => '',
+                'required_deliverables' => $service->deliverables,
+                'budget' => $service->price_minor / 100,
+                'currency' => $service->currency,
+                'delivery_days' => $service->delivery_days,
+                'negotiation_mode' => $service->negotiation_enabled ? 'ai' : 'manual',
+            ];
+
+            $definition = $this->registry->for('buyer_request');
+            $completed = $definition->completedSteps($data);
+
+            $draft->update([
+                'data' => $data,
+                'completed_steps' => $completed,
+                'current_step' => 'outcome',
+            ]);
+        }
+
+        return $draft->fresh();
+    }
+
+    public function startForAgent(User $user, Transaction $transaction, string $role): WizardDraft
+    {
+        $draft = $this->start($user, 'agent_config', $transaction);
+
+        if ($draft->wasRecentlyCreated) {
+            $definition = $this->registry->for('agent_config');
+            $data = $definition->startData();
+            $data['role'] = $role;
+
+            if ($role === 'buyer') {
+                $data['max_budget'] = $transaction->budget_minor / 100;
+                $data['objective'] = 'Negotiate the best terms inside my private budget.';
+            } else {
+                $opening = $transaction->seller_floor_minor
+                    ?? $transaction->seller_offer_minor
+                    ?? $transaction->offer?->price_minor
+                    ?? $transaction->budget_minor;
+                $data['floor'] = $opening / 100;
+                $data['objective'] = 'Protect my private floor, delivery capacity, and scope.';
+            }
+
+            $data['max_delivery_days'] = $transaction->delivery_days;
+
+            $draft->update([
+                'data' => $data,
+                'completed_steps' => $definition->completedSteps($data),
+                'current_step' => 'provider',
+            ]);
+        }
+
+        return $draft->fresh();
+    }
+
     /**
      * @param  array<string, mixed>  $data
      */
@@ -129,7 +194,8 @@ class WizardDraftService
                 ]);
             }
 
-            $validated = $definition->validateStep($stepKey, $data);
+            $mergedForValidation = array_replace($fresh->data ?? [], $data);
+            $validated = $definition->validateStep($stepKey, $mergedForValidation);
             $merged = array_replace($fresh->data ?? [], $validated);
             $completed = $definition->completedSteps($merged);
             $keys = $definition->stepKeys();
@@ -151,7 +217,7 @@ class WizardDraftService
             $fresh->update([
                 'data' => $merged,
                 'completed_steps' => $completed,
-                'current_step' => $this->nextStep($definition, $completed),
+                'current_step' => $this->stepAfter($definition, $stepKey),
                 'version' => $fresh->version + 1,
             ]);
 
@@ -159,12 +225,45 @@ class WizardDraftService
         });
     }
 
-    public function publish(WizardDraft $draft, int $version): Service
+    public function publish(WizardDraft $draft, int $version): WizardPublishResult
     {
-        return DB::transaction(function () use ($draft, $version): Service {
+        return DB::transaction(function () use ($draft, $version): WizardPublishResult {
             $fresh = $this->lockedDraft($draft, $version);
             $definition = $this->registry->for($fresh->wizard_type);
-            $service = $definition->finalize($fresh);
+            $result = $definition->finalize($fresh);
+
+            if ($result instanceof Service) {
+                $publish = new WizardPublishResult(
+                    type: 'service',
+                    id: $result->id,
+                    url: route('services.show', $result),
+                    meta: ['slug' => $result->slug],
+                );
+                $action = 'service.published';
+                $transactionId = null;
+            } elseif ($result instanceof Transaction) {
+                $publish = new WizardPublishResult(
+                    type: 'transaction',
+                    id: $result->id,
+                    url: route('transactions.show', $result),
+                    meta: ['title' => $result->title],
+                );
+                $action = 'buyer_request.created';
+                $transactionId = $result->id;
+            } elseif ($result instanceof AgentConfiguration) {
+                $publish = new WizardPublishResult(
+                    type: 'agent',
+                    id: $result->id,
+                    url: route('transactions.show', $result->transaction_id),
+                    meta: ['role' => $result->role],
+                );
+                $action = 'agent.activated';
+                $transactionId = $result->transaction_id;
+            } else {
+                throw ValidationException::withMessages([
+                    'wizard' => 'This wizard did not return a publishable result.',
+                ]);
+            }
 
             $fresh->update([
                 'status' => WizardStatus::Completed,
@@ -174,15 +273,16 @@ class WizardDraftService
 
             AuditLog::create([
                 'user_id' => $fresh->user_id,
-                'transaction_id' => null,
-                'action' => 'service.published',
+                'transaction_id' => $transactionId,
+                'action' => $action,
                 'metadata' => [
-                    'service_id' => $service->id,
-                    'slug' => $service->slug,
+                    'wizard_type' => $fresh->wizard_type,
+                    'result_type' => $publish->type,
+                    'result_id' => $publish->id,
                 ],
             ]);
 
-            return $service;
+            return $publish;
         });
     }
 
@@ -250,6 +350,18 @@ class WizardDraftService
         }
 
         return $fresh;
+    }
+
+    private function stepAfter(WizardDefinition $definition, string $stepKey): string
+    {
+        $keys = $definition->stepKeys();
+        $index = array_search($stepKey, $keys, true);
+
+        if ($index === false || $index >= count($keys) - 1) {
+            return 'publish';
+        }
+
+        return $keys[$index + 1];
     }
 
     /**

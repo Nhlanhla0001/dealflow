@@ -3,9 +3,11 @@ import {
     Bell,
     BookOpen,
     BriefcaseBusiness,
+    Coins,
     FolderGit2,
     Handshake,
     LayoutGrid,
+    Package,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -76,12 +78,24 @@ export function AppSidebar() {
         });
     }
 
-    navItems.push({
-        title: 'Notifications',
-        href: notificationsIndex(),
-        icon: Bell,
-        badge: unreadNotifications,
-    });
+    navItems.push(
+        {
+            title: 'Orders',
+            href: '/orders',
+            icon: Package,
+        },
+        {
+            title: 'AI usage',
+            href: '/ai/usage',
+            icon: Coins,
+        },
+        {
+            title: 'Notifications',
+            href: notificationsIndex(),
+            icon: Bell,
+            badge: unreadNotifications,
+        },
+    );
 
     return (
         <Sidebar collapsible="icon" variant="inset">
