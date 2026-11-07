@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('buyer_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('seller_id')->constrained('users')->cascadeOnDelete();
+            $table->unsignedBigInteger('service_id')->nullable()->after('seller_id');
             $table->string('title');
             $table->text('description');
             $table->char('currency', 3)->default('USD');
@@ -20,11 +21,13 @@ return new class extends Migration
             $table->unsignedBigInteger('seller_offer_minor')->nullable();
             $table->unsignedSmallInteger('delivery_days');
             $table->unsignedSmallInteger('seller_delivery_days')->nullable();
+            $table->string('negotiation_mode', 16)->default('manual')->after('delivery_days');
             $table->string('state')->default('draft');
             $table->timestamps();
 
             $table->index(['buyer_id', 'state']);
             $table->index(['seller_id', 'state']);
+            $table->index('service_id');
         });
     }
 

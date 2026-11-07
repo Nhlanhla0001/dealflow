@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
             $table->foreignId('agreement_id')->nullable()->constrained()->nullOnDelete();
             $table->string('paypal_order_id')->nullable()->unique();
+            $table->string('paypal_approval_url')->nullable()->after('paypal_order_id');
             $table->string('status', 20)->default('pending');
             $table->unsignedBigInteger('amount_minor');
             $table->char('currency', 3);

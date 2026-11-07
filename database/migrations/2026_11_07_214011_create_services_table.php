@@ -35,10 +35,21 @@ return new class extends Migration
             $table->index(['category_id', 'status']);
             $table->index(['status', 'published_at']);
         });
+
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->foreign('service_id')
+                ->references('id')
+                ->on('services')
+                ->nullOnDelete();
+        });
     }
 
     public function down(): void
     {
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->dropForeign(['service_id']);
+        });
+
         Schema::dropIfExists('services');
     }
 };

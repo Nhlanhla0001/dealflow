@@ -15,10 +15,16 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('role')->default('buyer')->after('email');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->text('two_factor_secret')->after('password')->nullable();
+            $table->text('two_factor_recovery_codes')->after('two_factor_secret')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->after('two_factor_recovery_codes')->nullable();
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index('role');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
