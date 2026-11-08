@@ -87,6 +87,13 @@ export default function TransactionsShow({
         transaction.negotiation_mode === 'manual' &&
         ['draft', 'negotiating'].includes(transaction.state);
     const myRole = isBuyer ? 'buyer' : 'seller';
+    const negotiationEmptyMessage = !transaction.offer
+        ? 'No negotiation messages yet. The seller must submit an offer first.'
+        : transaction.negotiation_mode === 'manual'
+          ? 'No offers exchanged yet. Use the form below to send the first counteroffer.'
+          : isBuyer
+            ? "The seller's offer is ready. Start the AI negotiation above."
+            : 'Waiting for the buyer to start the AI negotiation.';
     const latestMessage = transaction.negotiation_session?.messages
         ? transaction.negotiation_session.messages[
               transaction.negotiation_session.messages.length - 1
@@ -493,9 +500,7 @@ export default function TransactionsShow({
                                     </div>
                                 ) : (
                                     <EmptyState>
-                                        No negotiation messages yet. The seller
-                                        must submit an offer before the buyer
-                                        can start negotiation.
+                                        {negotiationEmptyMessage}
                                     </EmptyState>
                                 )}
 
@@ -982,14 +987,17 @@ export default function TransactionsShow({
                                   transaction.offer ? (
                                     <>
                                         <p>
-                                            The seller's offer is in. Start the
-                                            AI negotiation to produce an
-                                            agreement inside both limits.
+                                            {transaction.negotiation_mode ===
+                                            'manual'
+                                                ? "The seller's offer is in. Send a counteroffer, or accept the latest offer, to create an agreement."
+                                                : "The seller's offer is in. Start the AI negotiation to produce an agreement inside both limits."}
                                         </p>
                                         <p className="flex items-center gap-2 text-xs">
                                             <ArrowRight className="size-3" />
-                                            Offer → negotiation → dual approval
-                                            → PayPal
+                                            {transaction.negotiation_mode ===
+                                            'manual'
+                                                ? 'Offer → manual negotiation → dual approval → PayPal'
+                                                : 'Offer → negotiation → dual approval → PayPal'}
                                         </p>
                                     </>
                                 ) : transaction.state ===
