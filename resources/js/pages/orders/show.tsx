@@ -1,5 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { CheckCircle2, ExternalLink, Package } from 'lucide-react';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,11 @@ export default function OrderShow({
     isSeller,
     revisionLimit,
 }: Props) {
+    const { errors, old } = usePage<{
+        errors: Record<string, string>;
+        old: Record<string, string>;
+    }>().props;
+
     const currentStep = matchStep(order.status);
     const currentIndex = steps.findIndex((step) => step.key === currentStep);
     const step = steps[currentIndex] ?? steps[0];
@@ -344,8 +350,13 @@ export default function OrderShow({
                                             id="reason"
                                             name="reason"
                                             required
+                                            defaultValue={old.reason ?? ''}
                                             placeholder="Delivery issue"
+                                            aria-invalid={Boolean(
+                                                errors.reason,
+                                            )}
                                         />
+                                        <InputError message={errors.reason} />
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="evidence">
@@ -356,6 +367,9 @@ export default function OrderShow({
                                             name="evidence"
                                             type="file"
                                             accept=".pdf,.png,.jpg,.jpeg,.webp,.zip"
+                                            aria-invalid={Boolean(
+                                                errors.evidence,
+                                            )}
                                             className="file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium"
                                         />
                                         <p className="text-xs text-muted-foreground">
@@ -363,6 +377,7 @@ export default function OrderShow({
                                             MB. Stored privately and shared only
                                             with the other party and admins.
                                         </p>
+                                        <InputError message={errors.evidence} />
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="evidence_url">
@@ -372,7 +387,16 @@ export default function OrderShow({
                                             id="evidence_url"
                                             name="evidence_url"
                                             type="url"
+                                            defaultValue={
+                                                old.evidence_url ?? ''
+                                            }
                                             placeholder="https://example.com/evidence"
+                                            aria-invalid={Boolean(
+                                                errors.evidence_url,
+                                            )}
+                                        />
+                                        <InputError
+                                            message={errors.evidence_url}
                                         />
                                     </div>
                                     <div className="grid gap-2">
@@ -384,8 +408,13 @@ export default function OrderShow({
                                             name="message"
                                             required
                                             rows={3}
+                                            defaultValue={old.message ?? ''}
+                                            aria-invalid={Boolean(
+                                                errors.message,
+                                            )}
                                             placeholder="What went wrong, and what outcome are you asking for?"
                                         />
+                                        <InputError message={errors.message} />
                                     </div>
                                     <Button type="submit" variant="destructive">
                                         Submit dispute

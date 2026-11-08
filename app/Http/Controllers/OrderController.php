@@ -187,6 +187,10 @@ class OrderController extends Controller
             'message' => ['required', 'string', 'max:3000'],
             'evidence_url' => ['nullable', 'url', 'max:2048'],
             'evidence' => ['nullable', 'file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,webp,zip'],
+        ], [
+            'evidence.mimes' => 'Evidence must be a PDF, PNG, JPG, WebP, or ZIP file.',
+            'evidence.max' => 'Evidence must be 10 MB or smaller.',
+            'evidence.file' => 'The evidence upload did not complete. Check the file and try again.',
         ]);
 
         return DB::transaction(function () use ($order, $request, $validated): RedirectResponse {

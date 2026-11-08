@@ -86,23 +86,29 @@ export default function MarketplaceIndex({
                     className="mt-8 rounded-xl border border-border bg-card p-4"
                 >
                     <div className="grid gap-3 md:grid-cols-[1.5fr_0.8fr_0.8fr_0.8fr_auto]">
-                        <label className="relative block">
-                            <span className="sr-only">Search services</span>
-                            <Search
-                                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-                                aria-hidden
-                            />
-                            <Input
-                                value={query}
-                                onChange={(event) =>
-                                    setQuery(event.target.value)
-                                }
-                                placeholder="Search services"
-                                className="pl-9"
-                            />
+                        <label className="grid gap-1.5">
+                            <span className="text-xs font-medium text-muted-foreground">
+                                Search
+                            </span>
+                            <span className="relative block">
+                                <Search
+                                    className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                                    aria-hidden
+                                />
+                                <Input
+                                    value={query}
+                                    onChange={(event) =>
+                                        setQuery(event.target.value)
+                                    }
+                                    placeholder="Search services"
+                                    className="pl-9"
+                                />
+                            </span>
                         </label>
-                        <label>
-                            <span className="sr-only">Minimum price</span>
+                        <label className="grid gap-1.5">
+                            <span className="text-xs font-medium text-muted-foreground">
+                                Min price
+                            </span>
                             <Input
                                 value={priceMin}
                                 onChange={(event) =>
@@ -110,11 +116,13 @@ export default function MarketplaceIndex({
                                 }
                                 type="number"
                                 min="0"
-                                placeholder="Min $"
+                                placeholder="0"
                             />
                         </label>
-                        <label>
-                            <span className="sr-only">Maximum price</span>
+                        <label className="grid gap-1.5">
+                            <span className="text-xs font-medium text-muted-foreground">
+                                Max price
+                            </span>
                             <Input
                                 value={priceMax}
                                 onChange={(event) =>
@@ -122,11 +130,13 @@ export default function MarketplaceIndex({
                                 }
                                 type="number"
                                 min="0"
-                                placeholder="Max $"
+                                placeholder="Any"
                             />
                         </label>
-                        <label>
-                            <span className="sr-only">Sort services</span>
+                        <label className="grid gap-1.5">
+                            <span className="text-xs font-medium text-muted-foreground">
+                                Sort by
+                            </span>
                             <select
                                 value={sort}
                                 onChange={(event) =>
@@ -146,7 +156,7 @@ export default function MarketplaceIndex({
                                 </option>
                             </select>
                         </label>
-                        <Button type="submit">
+                        <Button type="submit" className="self-end">
                             <SlidersHorizontal className="size-4" aria-hidden />
                             Apply
                         </Button>
