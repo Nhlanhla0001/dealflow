@@ -316,4 +316,4 @@ tests/Feature/               HTTP and workflow tests
 
 ## License
 
-AGPL-3.0-or-later. See [LICENSE](LICENSE). Because DealFlow is network software, section 13 of the license applies: users interacting with a deployed instance are entitled to the corresponding source, which is this repository.
+Copyright (C) 2026 Nhlanhla Mabena. Licensed under AGPL-3.0-or-later; see [LICENSE](LICENSE). Because DealFlow is network software, section 13 of the license applies: users interacting with a deployed instance are entitled to the corresponding source, which is this repository.
