@@ -62,7 +62,7 @@ The next slice connects the marketplace to the existing negotiation and payment 
 - **Admin account:** `admin@dealflow.test` / `password`.
 - **Rate limits** protect negotiation, wizard saves, publishing, checkout, and credit top-ups.
 
-**Still to build:** PostgreSQL as the default runtime (the schema is portable and SQLite is retained for the demo), SSR for public pages, provider-account AI billing (the ledger currently supports prepaid sandbox credits), a hosted demo deployment, and a refreshed video/Devpost submission. The platform does not claim escrow, split payments, seller payouts, or automated refunds.
+**Still to build:** SSR for public pages, provider-account AI billing (the ledger currently supports prepaid sandbox credits), a hosted demo deployment, and a refreshed video/Devpost submission. The platform does not claim escrow, split payments, seller payouts, or automated refunds.
 
 ## Demo
 
@@ -102,6 +102,53 @@ php artisan serve
 ```
 
 Open `http://127.0.0.1:8000`.
+
+SQLite is for the local demo only. **Production uses PostgreSQL.**
+
+### Production database
+
+Start PostgreSQL 18 and Redis with the included compose file:
+
+```bash
+docker compose up -d postgres redis
+```
+
+Create the production environment file:
+
+```bash
+cp .env.production.example .env
+php artisan key:generate
+```
+
+Set the real `APP_URL`, database password, Google key, PayPal credentials, mail credentials, and webhook ID, then run:
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci
+npm run build
+php artisan migrate --force --seed
+php artisan optimize
+```
+
+Run the queue worker under a process supervisor:
+
+```bash
+php artisan queue:work --sleep=1 --tries=3 --timeout=120
+```
+
+The production template enables PostgreSQL, Redis sessions/cache/queues, encrypted secure cookies, HTTPS-only session cookies, and `APP_DEBUG=false`.
+
+### PostgreSQL verification
+
+The full suite also runs against PostgreSQL:
+
+```bash
+docker compose up -d postgres
+docker compose exec -T postgres createdb -U dealflow dealflow_test
+composer test:pgsql
+```
+
+This is the same suite CI runs in the `postgres` job. The application is not considered production-ready on SQLite.
 
 ### Demo accounts
 

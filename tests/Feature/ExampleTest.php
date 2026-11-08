@@ -15,6 +15,8 @@ class ExampleTest extends TestCase
         $response = $this->get(route('home'));
 
         $response->assertOk();
+        $response->assertHeader('X-Content-Type-Options', 'nosniff');
+        $response->assertHeader('X-Frame-Options', 'DENY');
         $response->assertInertia(fn (Assert $page) => $page->component('welcome'));
     }
 }

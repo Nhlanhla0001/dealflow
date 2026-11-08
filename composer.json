@@ -72,6 +72,11 @@
         "types:check": [
             "phpstan analyse --memory-limit=1G"
         ],
+        "test:pgsql": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php artisan config:clear --ansi",
+            "vendor/bin/phpunit -c phpunit.pgsql.xml"
+        ],
         "test": [
             "@php artisan config:clear --ansi",
             "@lint:check",
