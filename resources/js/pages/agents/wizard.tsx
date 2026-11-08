@@ -109,6 +109,7 @@ export default function AgentWizard({
                 <WizardLayout
                     title={draft.title}
                     description={draft.description}
+                    workspaceLabel="Agent workspace"
                     steps={draft.steps}
                     currentStep={wizard.currentStep}
                     completedSteps={wizard.completedSteps}

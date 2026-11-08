@@ -100,6 +100,7 @@ export default function BuyerRequestWizard({
                 <WizardLayout
                     title={draft.title}
                     description={draft.description}
+                    workspaceLabel="Buyer workspace"
                     steps={draft.steps}
                     currentStep={wizard.currentStep}
                     completedSteps={wizard.completedSteps}

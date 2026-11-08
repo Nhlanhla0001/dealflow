@@ -106,6 +106,7 @@ export default function SellerServiceWizard({
                 <WizardLayout
                     title={draft.title}
                     description={draft.description}
+                    workspaceLabel="Seller workspace"
                     steps={draft.steps}
                     currentStep={wizard.currentStep}
                     completedSteps={wizard.completedSteps}

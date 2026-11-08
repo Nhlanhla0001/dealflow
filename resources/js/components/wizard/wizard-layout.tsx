@@ -8,6 +8,7 @@ type Props = {
     currentStep: string;
     completedSteps: string[];
     onStepClick?: (key: string) => void;
+    workspaceLabel?: string;
     children: React.ReactNode;
 };
 
@@ -18,13 +19,14 @@ export function WizardLayout({
     currentStep,
     completedSteps,
     onStepClick,
+    workspaceLabel = 'Workspace',
     children,
 }: Props) {
     return (
         <div className="mx-auto w-full max-w-4xl">
             <div className="mb-6">
                 <p className="text-xs font-medium tracking-[0.22em] text-muted-foreground uppercase">
-                    Seller workspace
+                    {workspaceLabel}
                 </p>
                 <h1 className="mt-2 text-2xl font-semibold tracking-tight">
                     {title}
