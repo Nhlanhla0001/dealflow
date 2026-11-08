@@ -14,4 +14,5 @@ return [
     */
     'ai_negotiation' => env('DEALFLOW_AI_NEGOTIATION', true),
     'ai_model' => env('DEALFLOW_AI_MODEL'),
+    'ai_cost_per_call_minor' => (int) env('DEALFLOW_AI_COST_PER_CALL_MINOR', 1),
 ];

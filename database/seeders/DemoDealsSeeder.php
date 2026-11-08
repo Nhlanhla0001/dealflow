@@ -9,6 +9,7 @@ use App\Enums\OfferStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\TransactionState;
 use App\Models\Agreement;
+use App\Models\Order;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Notifications\TermsReadyForApproval;
@@ -345,6 +346,18 @@ class DemoDealsSeeder extends Seeder
             'payment_order_id' => $paymentOrder->id,
             'capture_id' => $paymentOrder->capture_id,
         ]);
+
+        Order::query()->firstOrCreate(
+            ['transaction_id' => $transaction->id],
+            [
+                'buyer_id' => $transaction->buyer_id,
+                'seller_id' => $transaction->seller_id,
+                'amount_minor' => 50000,
+                'currency' => 'USD',
+                'status' => 'paid',
+                'paid_at' => now()->subMinutes(4),
+            ],
+        );
     }
 
     private function notifyTerms(Transaction $transaction, User $user, bool $read): void

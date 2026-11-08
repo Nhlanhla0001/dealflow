@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dispute;
+use App\Models\DisputeEvent;
 use App\Models\Order;
 use App\Models\OrderEvent;
 use Illuminate\Http\RedirectResponse;
@@ -37,6 +39,7 @@ class OrderController extends Controller
             'transaction.seller:id,name',
             'transaction.service:id,title,revisions',
             'events.user:id,name',
+            'dispute.events.user:id,name',
         ]);
 
         return Inertia::render('orders/show', [
@@ -52,19 +55,21 @@ class OrderController extends Controller
         $this->authorize('view', $order);
         abort_unless($order->seller_id === $request->user()->id, 403);
 
-        if ($order->status !== 'paid') {
-            return $this->invalid('Only a paid order can be started.');
-        }
+        return DB::transaction(function () use ($order, $request): RedirectResponse {
+            $fresh = $this->lockedOrder($order);
 
-        DB::transaction(function () use ($order, $request): void {
-            $order->update([
+            if ($fresh->status !== 'paid') {
+                return $this->invalid('Only a paid order can be started.');
+            }
+
+            $fresh->update([
                 'status' => 'in_progress',
                 'started_at' => now(),
             ]);
-            $this->event($order, $request, 'started', 'Seller started work.');
-        });
+            $this->event($fresh, $request, 'started', 'Seller started work.');
 
-        return $this->success('Order started.');
+            return $this->success('Order started.');
+        });
     }
 
     public function progress(Request $request, Order $order): RedirectResponse
@@ -76,13 +81,17 @@ class OrderController extends Controller
             'message' => ['required', 'string', 'max:2000'],
         ]);
 
-        if (! in_array($order->status, ['in_progress', 'revision_requested'], true)) {
-            return $this->invalid('Progress can only be added while work is in progress.');
-        }
+        return DB::transaction(function () use ($order, $request, $validated): RedirectResponse {
+            $fresh = $this->lockedOrder($order);
 
-        $this->event($order, $request, 'progress', $validated['message']);
+            if (! in_array($fresh->status, ['in_progress', 'revision_requested'], true)) {
+                return $this->invalid('Progress can only be added while work is in progress.');
+            }
 
-        return $this->success('Progress update added.');
+            $this->event($fresh, $request, 'progress', $validated['message']);
+
+            return $this->success('Progress update added.');
+        });
     }
 
     public function deliver(Request $request, Order $order): RedirectResponse
@@ -95,21 +104,23 @@ class OrderController extends Controller
             'delivery_url' => ['nullable', 'url', 'max:2048'],
         ]);
 
-        if (! in_array($order->status, ['in_progress', 'revision_requested'], true)) {
-            return $this->invalid('There is no active work to deliver.');
-        }
+        return DB::transaction(function () use ($order, $request, $validated): RedirectResponse {
+            $fresh = $this->lockedOrder($order);
 
-        DB::transaction(function () use ($order, $request, $validated): void {
-            $order->update([
+            if (! in_array($fresh->status, ['in_progress', 'revision_requested'], true)) {
+                return $this->invalid('There is no active work to deliver.');
+            }
+
+            $fresh->update([
                 'status' => 'delivered',
                 'delivery_message' => $validated['message'],
                 'delivery_url' => $validated['delivery_url'] ?? null,
                 'delivered_at' => now(),
             ]);
-            $this->event($order, $request, 'delivered', $validated['message']);
-        });
+            $this->event($fresh, $request, 'delivered', $validated['message']);
 
-        return $this->success('Delivery submitted. The buyer can now review it.');
+            return $this->success('Delivery submitted. The buyer can now review it.');
+        });
     }
 
     public function accept(Request $request, Order $order): RedirectResponse
@@ -117,19 +128,21 @@ class OrderController extends Controller
         $this->authorize('view', $order);
         abort_unless($order->buyer_id === $request->user()->id, 403);
 
-        if ($order->status !== 'delivered') {
-            return $this->invalid('Only a delivered order can be accepted.');
-        }
+        return DB::transaction(function () use ($order, $request): RedirectResponse {
+            $fresh = $this->lockedOrder($order);
 
-        DB::transaction(function () use ($order, $request): void {
-            $order->update([
+            if ($fresh->status !== 'delivered') {
+                return $this->invalid('Only a delivered order can be accepted.');
+            }
+
+            $fresh->update([
                 'status' => 'completed',
                 'completed_at' => now(),
             ]);
-            $this->event($order, $request, 'accepted', 'Buyer accepted the delivery.');
-        });
+            $this->event($fresh, $request, 'accepted', 'Buyer accepted the delivery.');
 
-        return $this->success('Order completed.');
+            return $this->success('Order completed.');
+        });
     }
 
     public function revision(Request $request, Order $order): RedirectResponse
@@ -141,25 +154,27 @@ class OrderController extends Controller
             'message' => ['required', 'string', 'max:2000'],
         ]);
 
-        if ($order->status !== 'delivered') {
-            return $this->invalid('Only a delivered order can be sent back for revision.');
-        }
+        return DB::transaction(function () use ($order, $request, $validated): RedirectResponse {
+            $fresh = $this->lockedOrder($order);
 
-        $limit = $order->transaction->service?->revisions ?? 1;
+            if ($fresh->status !== 'delivered') {
+                return $this->invalid('Only a delivered order can be sent back for revision.');
+            }
 
-        if ($order->revisions_used >= $limit) {
-            return $this->invalid('The revision limit for this order has been reached.');
-        }
+            $limit = $fresh->transaction->service?->revisions ?? 1;
 
-        DB::transaction(function () use ($order, $request, $validated): void {
-            $order->update([
+            if ($fresh->revisions_used >= $limit) {
+                return $this->invalid('The revision limit for this order has been reached.');
+            }
+
+            $fresh->update([
                 'status' => 'revision_requested',
-                'revisions_used' => $order->revisions_used + 1,
+                'revisions_used' => $fresh->revisions_used + 1,
             ]);
-            $this->event($order, $request, 'revision_requested', $validated['message']);
-        });
+            $this->event($fresh, $request, 'revision_requested', $validated['message']);
 
-        return $this->success('Revision requested.');
+            return $this->success('Revision requested.');
+        });
     }
 
     public function dispute(Request $request, Order $order): RedirectResponse
@@ -169,20 +184,47 @@ class OrderController extends Controller
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:120'],
             'message' => ['required', 'string', 'max:3000'],
+            'evidence_url' => ['nullable', 'url', 'max:2048'],
         ]);
 
-        if (! in_array($order->status, ['paid', 'in_progress', 'delivered', 'revision_requested'], true)) {
-            return $this->invalid('This order cannot be disputed in its current state.');
-        }
+        return DB::transaction(function () use ($order, $request, $validated): RedirectResponse {
+            $fresh = $this->lockedOrder($order);
 
-        DB::transaction(function () use ($order, $request, $validated): void {
-            $order->update(['status' => 'disputed']);
-            $this->event($order, $request, 'disputed', $validated['message'], [
+            if (! in_array($fresh->status, ['paid', 'in_progress', 'delivered', 'revision_requested'], true)) {
+                return $this->invalid('This order cannot be disputed in its current state.');
+            }
+
+            $fresh->update(['status' => 'disputed']);
+
+            $dispute = Dispute::create([
+                'order_id' => $fresh->id,
+                'opened_by' => $request->user()->id,
                 'reason' => $validated['reason'],
+                'description' => $validated['message'],
+                'evidence_url' => $validated['evidence_url'] ?? null,
+                'status' => 'open',
             ]);
-        });
 
-        return $this->success('Dispute opened.');
+            DisputeEvent::create([
+                'dispute_id' => $dispute->id,
+                'user_id' => $request->user()->id,
+                'type' => 'opened',
+                'message' => $validated['message'],
+                'metadata' => ['reason' => $validated['reason']],
+            ]);
+
+            $this->event($fresh, $request, 'disputed', $validated['message'], [
+                'reason' => $validated['reason'],
+                'dispute_id' => $dispute->id,
+            ]);
+
+            return $this->success('Dispute opened.');
+        });
+    }
+
+    private function lockedOrder(Order $order): Order
+    {
+        return Order::query()->lockForUpdate()->findOrFail($order->id);
     }
 
     /**

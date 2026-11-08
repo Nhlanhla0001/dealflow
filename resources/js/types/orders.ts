@@ -46,4 +46,5 @@ export type DealOrder = {
         seller?: { id: number; name: string };
     };
     events?: OrderEvent[];
+    dispute?: import('./admin').DealDispute | null;
 };

@@ -21,6 +21,12 @@ return new class extends Migration
             $table->text('two_factor_secret')->after('password')->nullable();
             $table->text('two_factor_recovery_codes')->after('two_factor_secret')->nullable();
             $table->timestamp('two_factor_confirmed_at')->after('two_factor_recovery_codes')->nullable();
+            $table->string('headline')->nullable()->after('role');
+            $table->text('bio')->nullable()->after('headline');
+            $table->string('timezone', 64)->default('UTC')->after('bio');
+            $table->boolean('notification_email')->default(true)->after('timezone');
+            $table->boolean('notification_in_app')->default(true)->after('notification_email');
+            $table->timestamp('onboarding_completed_at')->nullable()->after('notification_in_app');
             $table->rememberToken();
             $table->timestamps();
 

@@ -4,6 +4,12 @@ export type User = {
     email: string;
     avatar?: string;
     role: 'buyer' | 'seller' | 'both' | 'admin';
+    headline?: string | null;
+    bio?: string | null;
+    timezone?: string;
+    notification_email?: boolean;
+    notification_in_app?: boolean;
+    onboarding_completed_at?: string | null;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
     created_at: string;

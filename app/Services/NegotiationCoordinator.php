@@ -6,6 +6,8 @@ use App\Ai\Agents\BuyerNegotiationAgent;
 use App\Ai\Agents\SellerNegotiationAgent;
 use App\Enums\NegotiationStatus;
 use App\Enums\TransactionState;
+use App\Models\AgentConfiguration;
+use App\Models\AgentRun;
 use App\Models\NegotiationSession;
 use App\Models\Transaction;
 use App\Notifications\TermsReadyForApproval;
@@ -19,6 +21,7 @@ class NegotiationCoordinator
         private readonly AgreementService $agreements,
         private readonly BuyerNegotiationAgent $buyerAgent,
         private readonly SellerNegotiationAgent $sellerAgent,
+        private readonly AiUsageService $usage,
         private readonly AuditService $audit,
     ) {}
 
@@ -105,6 +108,12 @@ class NegotiationCoordinator
             return;
         }
 
+        if ($session->max_rounds < 2) {
+            $this->deadlock($session, $transaction, $buyerPrice, $deliveryWindow);
+
+            return;
+        }
+
         $sellerProposal = $this->sellerProposal(
             $session,
             $transaction,
@@ -162,6 +171,12 @@ class NegotiationCoordinator
             );
 
             $this->complete($session, $transaction, $sellerPrice, $sellerDelivery, 3);
+
+            return;
+        }
+
+        if ($session->max_rounds < 3) {
+            $this->deadlock($session, $transaction, $sellerPrice, $deliveryWindow);
 
             return;
         }
@@ -243,6 +258,22 @@ class NegotiationCoordinator
         ];
 
         if (config('dealflow.ai_negotiation', true)) {
+            $configuration = $this->agentConfiguration($transaction, 'buyer');
+            $costMinor = (int) config('dealflow.ai_cost_per_call_minor', 1);
+
+            if ($configuration !== null && ! $this->usage->canRun($configuration, $costMinor)) {
+                $this->recordAgentRun(
+                    $session,
+                    'buyer',
+                    $context,
+                    null,
+                    'fallback',
+                    'The buyer AI budget is exhausted.',
+                );
+
+                return $this->fallbackBuyerProposal($buyerMax, $sellerOffer, $deliveryWindow);
+            }
+
             $proposal = $this->buyerAgent->propose($context);
 
             if ($this->isValidProposal($proposal)) {
@@ -259,7 +290,8 @@ class NegotiationCoordinator
                     && ! ($action === 'accept' && $sellerOffer > $buyerMax);
 
                 if ($valid) {
-                    $this->recordAgentRun($session, 'buyer', $context, $proposal, 'succeeded', null);
+                    $run = $this->recordAgentRun($session, 'buyer', $context, $proposal, 'succeeded', null);
+                    $this->recordUsage($run, $configuration, $context, $proposal);
 
                     return [
                         'action' => $action,
@@ -270,7 +302,7 @@ class NegotiationCoordinator
                 }
             }
 
-            $this->recordAgentRun(
+            $run = $this->recordAgentRun(
                 $session,
                 'buyer',
                 $context,
@@ -278,6 +310,7 @@ class NegotiationCoordinator
                 'fallback',
                 'The AI buyer proposal was unavailable or outside the approved limits.',
             );
+            $this->recordUsage($run, $configuration, $context, $proposal);
         }
 
         return $this->fallbackBuyerProposal($buyerMax, $sellerOffer, $deliveryWindow);
@@ -306,6 +339,22 @@ class NegotiationCoordinator
         ];
 
         if (config('dealflow.ai_negotiation', true)) {
+            $configuration = $this->agentConfiguration($transaction, 'seller');
+            $costMinor = (int) config('dealflow.ai_cost_per_call_minor', 1);
+
+            if ($configuration !== null && ! $this->usage->canRun($configuration, $costMinor)) {
+                $this->recordAgentRun(
+                    $session,
+                    'seller',
+                    $context,
+                    null,
+                    'fallback',
+                    'The seller AI budget is exhausted.',
+                );
+
+                return $this->fallbackSellerProposal($sellerFloor, $buyerPrice, $buyerDelivery);
+            }
+
             $proposal = $this->sellerAgent->respond($context);
 
             if ($this->isValidProposal($proposal)) {
@@ -322,7 +371,8 @@ class NegotiationCoordinator
                     && ! ($action === 'accept' && $buyerPrice < $sellerFloor);
 
                 if ($valid) {
-                    $this->recordAgentRun($session, 'seller', $context, $proposal, 'succeeded', null);
+                    $run = $this->recordAgentRun($session, 'seller', $context, $proposal, 'succeeded', null);
+                    $this->recordUsage($run, $configuration, $context, $proposal);
 
                     return [
                         'action' => $action,
@@ -333,7 +383,7 @@ class NegotiationCoordinator
                 }
             }
 
-            $this->recordAgentRun(
+            $run = $this->recordAgentRun(
                 $session,
                 'seller',
                 $context,
@@ -341,6 +391,7 @@ class NegotiationCoordinator
                 'fallback',
                 'The AI seller proposal was unavailable or outside the approved limits.',
             );
+            $this->recordUsage($run, $configuration, $context, $proposal);
         }
 
         return $this->fallbackSellerProposal(
@@ -374,6 +425,27 @@ class NegotiationCoordinator
         ];
 
         if (config('dealflow.ai_negotiation', true)) {
+            $configuration = $this->agentConfiguration($transaction, 'buyer');
+            $costMinor = (int) config('dealflow.ai_cost_per_call_minor', 1);
+
+            if ($configuration !== null && ! $this->usage->canRun($configuration, $costMinor)) {
+                $this->recordAgentRun(
+                    $session,
+                    'buyer',
+                    $context,
+                    null,
+                    'fallback',
+                    'The buyer AI budget is exhausted.',
+                );
+
+                return [
+                    'action' => 'counteroffer',
+                    'price_minor' => $buyerMax,
+                    'delivery_days' => $deliveryWindow,
+                    'reason' => 'Cannot exceed the approved budget; this is the final proposal.',
+                ];
+            }
+
             $proposal = $this->buyerAgent->propose($context);
 
             if ($this->isValidProposal($proposal)) {
@@ -390,7 +462,8 @@ class NegotiationCoordinator
                     && $reason !== '';
 
                 if ($valid) {
-                    $this->recordAgentRun($session, 'buyer', $context, $proposal, 'succeeded', null);
+                    $run = $this->recordAgentRun($session, 'buyer', $context, $proposal, 'succeeded', null);
+                    $this->recordUsage($run, $configuration, $context, $proposal);
 
                     return [
                         'action' => $action,
@@ -401,7 +474,7 @@ class NegotiationCoordinator
                 }
             }
 
-            $this->recordAgentRun(
+            $run = $this->recordAgentRun(
                 $session,
                 'buyer',
                 $context,
@@ -409,6 +482,7 @@ class NegotiationCoordinator
                 'fallback',
                 'The AI buyer follow-up was unavailable or outside the approved limits.',
             );
+            $this->recordUsage($run, $configuration, $context, $proposal);
         }
 
         return [
@@ -593,18 +667,66 @@ class NegotiationCoordinator
         ?array $proposal,
         string $status,
         ?string $error,
-    ): void {
+    ): AgentRun {
         unset($context['seller_floor_minor']);
 
-        $session->agentRuns()->create([
+        $configuration = $this->agentConfiguration(
+            $session->transaction,
+            $agent === 'seller' ? 'seller' : 'buyer',
+        );
+
+        return $session->agentRuns()->create([
             'agent' => $agent,
-            'provider' => config('ai.default'),
-            'model' => config('dealflow.ai_model'),
+            'provider' => $configuration?->provider ?? config('ai.default'),
+            'model' => $configuration?->model
+                ?? config('ai.providers.gemini.models.text.default')
+                ?? 'unknown',
             'status' => $status,
             'input' => $context,
             'output' => $proposal,
             'error' => $error,
         ]);
+    }
+
+    private function agentConfiguration(
+        Transaction $transaction,
+        string $role,
+    ): ?AgentConfiguration {
+        return $transaction->agentConfigurations()
+            ->where('role', $role)
+            ->where('status', 'active')
+            ->first();
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @param  array<string, mixed>|null  $proposal
+     */
+    private function recordUsage(
+        AgentRun $run,
+        ?AgentConfiguration $configuration,
+        array $context,
+        ?array $proposal,
+    ): void {
+        if ($configuration === null) {
+            return;
+        }
+
+        $this->usage->record(
+            $run,
+            $configuration,
+            (int) config('dealflow.ai_cost_per_call_minor', 1),
+            $this->estimateTokens($context),
+            $proposal === null ? 0 : $this->estimateTokens($proposal),
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function estimateTokens(array $data): int
+    {
+        return max(1, (int) ceil(strlen(json_encode($data, JSON_THROW_ON_ERROR)) / 4));
     }
 
     private function redactFloor(string $reason, int $floorMinor): string

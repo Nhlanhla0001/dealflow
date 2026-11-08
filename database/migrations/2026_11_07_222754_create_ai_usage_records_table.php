@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('agent_configuration_id')->constrained()->cascadeOnDelete();
             $table->foreignId('negotiation_session_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('agent_run_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('agent_run_id')->nullable()->unique()->constrained()->nullOnDelete();
             $table->string('provider', 32);
             $table->string('model', 120);
             $table->unsignedInteger('prompt_tokens')->default(0);

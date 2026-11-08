@@ -82,6 +82,25 @@ export default function OrderShow({
                     </Badge>
                 </div>
 
+                {order.dispute && (
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+                        <div>
+                            <p className="text-sm font-medium">
+                                Dispute #{order.dispute.id}
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                {order.dispute.reason} ·{' '}
+                                {order.dispute.status.replaceAll('_', ' ')}
+                            </p>
+                        </div>
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={`/disputes/${order.dispute.id}`}>
+                                View dispute
+                            </Link>
+                        </Button>
+                    </div>
+                )}
+
                 <WizardProgress
                     steps={steps.map((item) => ({ ...item, review: false }))}
                     currentStep={currentStep}
@@ -325,6 +344,17 @@ export default function OrderShow({
                                             name="reason"
                                             required
                                             placeholder="Delivery issue"
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="evidence_url">
+                                            Evidence link (optional)
+                                        </Label>
+                                        <Input
+                                            id="evidence_url"
+                                            name="evidence_url"
+                                            type="url"
+                                            placeholder="https://example.com/evidence"
                                         />
                                     </div>
                                     <div className="grid gap-2">

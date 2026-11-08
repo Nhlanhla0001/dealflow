@@ -28,12 +28,19 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'role' => UserRole::Buyer,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
+            'headline' => null,
+            'bio' => null,
+            'timezone' => 'UTC',
+            'notification_email' => true,
+            'notification_in_app' => true,
+            'onboarding_completed_at' => now(),
         ];
     }
 

@@ -35,6 +35,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'seller2@dealflow.test',
         ]);
 
+        User::factory()->admin()->create([
+            'name' => 'Platform Admin',
+            'email' => 'admin@dealflow.test',
+        ]);
+
         $this->call(DemoDealsSeeder::class);
         $this->call(MarketplaceSeeder::class);
         $this->call(AiCreditSeeder::class);

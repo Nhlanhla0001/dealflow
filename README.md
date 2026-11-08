@@ -45,13 +45,23 @@ The next slice connects the marketplace to the existing negotiation and payment 
 - **Buyer request wizard** at `/buyer/requests/new?service={slug}`: outcome, deliverables, private maximum budget, delivery window, essential/negotiable conditions, manual vs AI-assisted negotiation, review, and confirmation.
 - **Independent agent configuration** at `/transactions/{id}/agent`: provider/model, objective, private buyer maximum or seller floor, maximum delivery window, turn limit, AI spending limit, and activation.
 - **Private constraints are server-enforced.** A buyer's agent cannot exceed the transaction budget. A seller's floor cannot exceed their opening offer. Activation fails when the provider is unconfigured or the AI credit balance is insufficient.
-- **AI credit ledger** at `/ai/usage`: balance and idempotent credits/debits. The demo adds a clearly labelled sandbox credit; no real AI funding charge is claimed. Per-call usage metering is not enabled yet.
+- **AI credit ledger** at `/ai/usage`: balance, idempotent credits/debits, and per-call usage records. Each agent run creates a usage record and debits the ledger with an idempotency key. The demo adds a clearly labelled sandbox credit; no real AI funding charge is claimed.
+- **Turn limits and credit exhaustion are enforced.** The session stops at the configured turn cap, and an exhausted AI balance falls back without calling the model.
 - **Checkout wizard** at `/transactions/{id}/checkout`: seven steps covering agreement, amount, payment method, PayPal, server verification, result, and order.
-- **Orders** at `/orders`: paid orders become trackable records. Sellers start work, post progress, and submit delivery; buyers accept or request revisions within the agreed limit. A party can open a dispute, which changes the order status and records a timestamped event.
+- **Orders** at `/orders`: paid orders become trackable records. Sellers start work, post progress, and submit delivery; buyers accept or request revisions within the agreed limit. Order transitions are row-locked.
+- **Dispute centre** at `/disputes/{id}`: a party opens a dispute with a reason, description, and optional evidence link. The order moves to disputed, a dispute timeline is recorded, and administrators can move it to under review, resolved, or rejected with a written resolution.
+- **Admin console** at `/admin`: platform stats, user role management, service moderation, transaction visibility, dispute queue, and dispute resolution.
 
 ![Checkout wizard](docs/screenshots/checkout.png)
 
-**Still to build:** a dedicated multi-step dispute centre with evidence and administrator resolution, a full admin console, provider-account billing (the ledger currently supports prepaid sandbox credits), token-accurate usage recording on every model call, and a formal five-step onboarding wizard. The order-level dispute action is intentionally minimal and does not claim an escrow or refund capability.
+## Onboarding and administration
+
+- **Onboarding wizard** at `/onboarding`: role, profile headline/bio/timezone, email and in-app notification preferences, review, and confirmation. Registration redirects here automatically.
+- **Notification preferences are enforced** by the notification classes, not just stored.
+- **Admin account:** `admin@dealflow.test` / `password`.
+- **Rate limits** protect negotiation, wizard saves, publishing, checkout, and credit top-ups.
+
+**Still to build:** PostgreSQL as the default runtime (the schema is portable and SQLite is retained for the demo), SSR for public pages, provider-account AI billing (the ledger currently supports prepaid sandbox credits), a hosted demo deployment, and a refreshed video/Devpost submission. The platform does not claim escrow, split payments, seller payouts, or automated refunds.
 
 ## Demo
 
@@ -99,6 +109,7 @@ Open `http://127.0.0.1:8000`.
 | Buyer         | `buyer@dealflow.test`   | `password` |
 | Seller        | `seller@dealflow.test`  | `password` |
 | Second seller | `seller2@dealflow.test` | `password` |
+| Admin         | `admin@dealflow.test`   | `password` |
 
 The seed creates four demo deals: a paid deal with a captured PayPal sandbox payment, an approved deal ready for checkout, and two deals awaiting approvals. It also creates the negotiation transcripts and the notification inbox.
 

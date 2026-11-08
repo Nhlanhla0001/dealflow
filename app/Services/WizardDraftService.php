@@ -77,6 +77,31 @@ class WizardDraftService
         return $draft->fresh();
     }
 
+    public function startForOnboarding(User $user): WizardDraft
+    {
+        $draft = $this->start($user, 'onboarding');
+
+        if ($draft->wasRecentlyCreated) {
+            $definition = $this->registry->for('onboarding');
+            $data = [
+                'role' => $user->role?->value ?? 'buyer',
+                'headline' => $user->headline,
+                'bio' => $user->bio,
+                'timezone' => $user->timezone ?? 'UTC',
+                'notification_email' => $user->notification_email,
+                'notification_in_app' => $user->notification_in_app,
+            ];
+
+            $draft->update([
+                'data' => $data,
+                'completed_steps' => $definition->completedSteps($data),
+                'current_step' => 'role',
+            ]);
+        }
+
+        return $draft->fresh();
+    }
+
     public function startForBuyerRequest(User $user, Service $service): WizardDraft
     {
         $draft = $this->start($user, 'buyer_request', $service);
@@ -259,6 +284,17 @@ class WizardDraftService
                 );
                 $action = 'agent.activated';
                 $transactionId = $result->transaction_id;
+            } elseif ($result instanceof User) {
+                $publish = new WizardPublishResult(
+                    type: 'user',
+                    id: $result->id,
+                    url: $result->hasVerifiedEmail()
+                        ? route('dashboard')
+                        : route('verification.notice'),
+                    meta: ['name' => $result->name],
+                );
+                $action = 'onboarding.completed';
+                $transactionId = null;
             } else {
                 throw ValidationException::withMessages([
                     'wizard' => 'This wizard did not return a publishable result.',

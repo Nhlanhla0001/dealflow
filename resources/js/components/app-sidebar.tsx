@@ -8,6 +8,7 @@ import {
     Handshake,
     LayoutGrid,
     Package,
+    ShieldAlert,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -67,6 +68,7 @@ export function AppSidebar() {
         auth?.user?.role === 'seller' ||
         auth?.user?.role === 'both' ||
         auth?.user?.role === 'admin';
+    const isAdmin = auth?.user?.role === 'admin';
 
     const navItems: NavItem[] = [...mainNavItems];
 
@@ -75,6 +77,14 @@ export function AppSidebar() {
             title: 'My services',
             href: '/seller/services',
             icon: BriefcaseBusiness,
+        });
+    }
+
+    if (isAdmin) {
+        navItems.push({
+            title: 'Admin',
+            href: '/admin',
+            icon: ShieldAlert,
         });
     }
 
