@@ -8,6 +8,7 @@ use App\Http\Controllers\BuyerRequestController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisputeController;
+use App\Http\Controllers\ManualNegotiationController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\NegotiationController;
 use App\Http\Controllers\NotificationController;
@@ -74,6 +75,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('transactions/{transaction}/negotiate', [NegotiationController::class, 'store'])
         ->middleware('throttle:10,1')
         ->name('transactions.negotiate');
+    Route::post('transactions/{transaction}/manual-offer', [ManualNegotiationController::class, 'offer'])
+        ->middleware('throttle:60,1')
+        ->name('transactions.manual-offer');
+    Route::post('transactions/{transaction}/manual-accept', [ManualNegotiationController::class, 'accept'])
+        ->middleware('throttle:30,1')
+        ->name('transactions.manual-accept');
     Route::post('agreements/{agreement}/approve', [AgreementApprovalController::class, 'store'])
         ->name('agreements.approve');
     Route::post('agreements/{agreement}/reject', [AgreementApprovalController::class, 'reject'])

@@ -75,11 +75,21 @@ export default function TransactionsShow({
     );
     const myAgent = isBuyer ? buyerAgent : sellerAgent;
     const canStartNegotiation =
+        transaction.negotiation_mode === 'ai' &&
         isBuyer &&
         transaction.state === 'draft' &&
         transaction.offer !== null &&
         !transaction.negotiation_session;
     const canSubmitOffer = isSeller && transaction.state === 'draft';
+    const canManualNegotiate =
+        transaction.negotiation_mode === 'manual' &&
+        ['draft', 'negotiating'].includes(transaction.state);
+    const myRole = isBuyer ? 'buyer' : 'seller';
+    const latestMessage = transaction.negotiation_session?.messages
+        ? transaction.negotiation_session.messages[
+              transaction.negotiation_session.messages.length - 1
+          ]
+        : undefined;
     const csrfToken =
         typeof document !== 'undefined'
             ? (document
@@ -485,6 +495,121 @@ export default function TransactionsShow({
                                         must submit an offer before the buyer
                                         can start negotiation.
                                     </EmptyState>
+                                )}
+
+                                {canManualNegotiate && (
+                                    <div className="mt-5 space-y-5 border-t border-border pt-5">
+                                        <div>
+                                            <p className="text-sm font-medium">
+                                                Manual negotiation
+                                            </p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                Send a counteroffer yourself.
+                                                The other party can accept the
+                                                latest offer, or counter again.
+                                            </p>
+                                        </div>
+
+                                        <form
+                                            method="POST"
+                                            action={`/transactions/${transaction.id}/manual-offer`}
+                                            className="space-y-3"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="_token"
+                                                value={csrfToken}
+                                            />
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="manual_price">
+                                                        Your price (USD)
+                                                    </Label>
+                                                    <Input
+                                                        id="manual_price"
+                                                        name="price"
+                                                        type="number"
+                                                        min="1"
+                                                        step="0.01"
+                                                        defaultValue={
+                                                            price / 100
+                                                        }
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="manual_delivery">
+                                                        Delivery (days)
+                                                    </Label>
+                                                    <Input
+                                                        id="manual_delivery"
+                                                        name="delivery_days"
+                                                        type="number"
+                                                        min="1"
+                                                        max="365"
+                                                        defaultValue={delivery}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="manual_reason">
+                                                    Message
+                                                </Label>
+                                                <textarea
+                                                    id="manual_reason"
+                                                    name="reason"
+                                                    required
+                                                    rows={3}
+                                                    maxLength={500}
+                                                    placeholder="Explain your counteroffer."
+                                                    className="flex min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                                />
+                                            </div>
+                                            <Button
+                                                type="submit"
+                                                variant="outline"
+                                            >
+                                                Send manual offer
+                                            </Button>
+                                        </form>
+
+                                        {latestMessage &&
+                                            latestMessage.agent !== myRole && (
+                                                <form
+                                                    method="POST"
+                                                    action={`/transactions/${transaction.id}/manual-accept`}
+                                                    className="rounded-lg border border-border bg-muted/40 p-3"
+                                                >
+                                                    <input
+                                                        type="hidden"
+                                                        name="_token"
+                                                        value={csrfToken}
+                                                    />
+                                                    <p className="text-sm">
+                                                        Latest offer:{' '}
+                                                        <span className="font-semibold">
+                                                            {formatMoney(
+                                                                latestMessage.price_minor ??
+                                                                    0,
+                                                                transaction.currency,
+                                                            )}
+                                                        </span>{' '}
+                                                        ·{' '}
+                                                        {latestMessage.delivery_days ??
+                                                            delivery}{' '}
+                                                        days
+                                                    </p>
+                                                    <Button
+                                                        type="submit"
+                                                        size="sm"
+                                                        className="mt-2"
+                                                    >
+                                                        Accept latest offer
+                                                    </Button>
+                                                </form>
+                                            )}
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>

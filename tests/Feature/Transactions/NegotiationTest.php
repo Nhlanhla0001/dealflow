@@ -4,10 +4,12 @@ namespace Tests\Feature\Transactions;
 
 use App\Ai\Agents\BuyerNegotiationAgent;
 use App\Ai\Agents\SellerNegotiationAgent;
+use App\Enums\AgentStatus;
 use App\Enums\AgreementStatus;
 use App\Enums\NegotiationStatus;
 use App\Enums\OfferStatus;
 use App\Enums\TransactionState;
+use App\Models\AgentConfiguration;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Notifications\CounterpartyApprovedTerms;
@@ -78,6 +80,20 @@ class NegotiationTest extends TestCase
             'delivery_days' => 7,
             'terms' => 'Listed terms.',
             'status' => OfferStatus::Active,
+        ]);
+
+        AgentConfiguration::query()->create([
+            'user_id' => $transaction->buyer_id,
+            'transaction_id' => $transaction->id,
+            'role' => 'buyer',
+            'provider' => 'gemini',
+            'model' => 'gemini-3-flash-preview',
+            'objective' => 'Buyer objective.',
+            'constraints' => ['max_budget_minor' => 50000],
+            'max_turns' => 5,
+            'spending_limit_minor' => 100,
+            'billing_method' => 'prepaid_credits',
+            'status' => AgentStatus::Active,
         ]);
 
         $this->actingAs($transaction->buyer)

@@ -32,7 +32,7 @@ class StartNegotiation
             ->where('status', 'active')
             ->get();
 
-        if ($transaction->negotiation_mode === 'ai') {
+        if ($transaction->negotiation_mode === 'ai' && $configurations->isNotEmpty()) {
             $roles = $configurations->pluck('role')->all();
 
             if (! in_array('buyer', $roles, true) || ! in_array('seller', $roles, true)) {
@@ -56,7 +56,9 @@ class StartNegotiation
             return $session;
         });
 
-        $this->coordinator->run($session->fresh());
+        if ($transaction->negotiation_mode !== 'manual') {
+            $this->coordinator->run($session->fresh());
+        }
 
         return $session->fresh();
     }

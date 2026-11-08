@@ -25,6 +25,7 @@ class TransactionFactory extends Factory
             'currency' => 'USD',
             'budget_minor' => fake()->numberBetween(10000, 200000),
             'delivery_days' => fake()->numberBetween(3, 14),
+            'negotiation_mode' => 'ai',
             'state' => TransactionState::Draft,
         ];
     }

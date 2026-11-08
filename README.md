@@ -43,6 +43,7 @@ This repository now includes the first complete marketplace slice:
 The next slice connects the marketplace to the existing negotiation and payment engine:
 
 - **Buyer request wizard** at `/buyer/requests/new?service={slug}`: outcome, deliverables, private maximum budget, delivery window, essential/negotiable conditions, manual vs AI-assisted negotiation, review, and confirmation.
+- **Manual negotiation** is real: if chosen, no AI runs. Both parties send counteroffers and accept the latest offer, which creates the same versioned agreement and dual-approval gate.
 - **Independent agent configuration** at `/transactions/{id}/agent`: provider/model, objective, private buyer maximum or seller floor, maximum delivery window, turn limit, AI spending limit, and activation.
 - **Private constraints are server-enforced.** A buyer's agent cannot exceed the transaction budget. A seller's floor cannot exceed their opening offer. Activation fails when the provider is unconfigured or the AI credit balance is insufficient.
 - **AI credit ledger** at `/ai/usage`: balance, idempotent credits/debits, and per-call usage records. Each agent run creates a usage record and debits the ledger with an idempotency key. The demo adds a clearly labelled sandbox credit; no real AI funding charge is claimed.

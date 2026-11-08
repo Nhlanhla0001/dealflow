@@ -184,6 +184,7 @@ class DemoDealsSeeder extends Seeder
                 'seller_floor_minor' => $sellerFloorMinor,
                 'delivery_days' => $deliveryDays,
                 'seller_delivery_days' => $sellerDeliveryDays,
+                'negotiation_mode' => 'ai',
                 'state' => $state,
             ],
         );
