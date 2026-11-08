@@ -6,7 +6,7 @@ import type { Paginated } from '@/types';
 type PaginationLink = Paginated<unknown>['links'][number];
 
 const base =
-    'inline-flex h-8 min-w-8 items-center justify-center gap-1 rounded-md border px-2 text-xs font-medium tabular-nums transition-colors';
+    'inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-md border px-2 text-xs font-medium tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:h-8 sm:min-w-8';
 const idle =
     'border-border text-muted-foreground hover:bg-muted hover:text-foreground';
 const active = 'border-foreground bg-foreground text-background';
