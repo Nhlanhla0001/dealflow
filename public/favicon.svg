@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="DealFlow">
+    <rect width="128" height="128" rx="28" fill="#18181B"/>
+    <path d="M42 32 H60 C82 32 94 45 94 64 C94 83 82 96 60 96 H42 Z" fill="none" stroke="#FAFAFA" stroke-width="11" stroke-linejoin="round"/>
+    <path d="M58 50 L76 64 L58 78" fill="none" stroke="#10B981" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
