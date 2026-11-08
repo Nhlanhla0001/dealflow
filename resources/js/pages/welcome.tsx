@@ -220,7 +220,7 @@ export default function Welcome({
                                     <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
                                         Demo access
                                     </p>
-                                    <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                    <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                                         Sandbox only
                                     </span>
                                 </div>
@@ -229,7 +229,7 @@ export default function Welcome({
                                         <dt className="text-muted-foreground">
                                             Buyer
                                         </dt>
-                                        <dd className="mt-0.5 font-mono text-[11px]">
+                                        <dd className="mt-0.5 font-mono text-xs">
                                             buyer@dealflow.test
                                             <span className="text-muted-foreground">
                                                 {' '}
@@ -241,7 +241,7 @@ export default function Welcome({
                                         <dt className="text-muted-foreground">
                                             Seller
                                         </dt>
-                                        <dd className="mt-0.5 font-mono text-[11px]">
+                                        <dd className="mt-0.5 font-mono text-xs">
                                             seller@dealflow.test
                                             <span className="text-muted-foreground">
                                                 {' '}
@@ -368,7 +368,7 @@ export default function Welcome({
                             </div>
 
                             <div className="mt-10 overflow-hidden rounded-xl border border-border bg-card">
-                                <div className="hidden grid-cols-[1.1fr_1fr_1.5fr] gap-6 border-b border-border bg-muted/50 px-5 py-3 text-[11px] font-medium tracking-[0.12em] text-muted-foreground uppercase md:grid">
+                                <div className="hidden grid-cols-[1.1fr_1fr_1.5fr] gap-6 border-b border-border bg-muted/50 px-5 py-3 text-xs font-medium tracking-[0.12em] text-muted-foreground uppercase md:grid">
                                     <span>Limit</span>
                                     <span>Enforced by</span>
                                     <span>What the agent sees</span>
@@ -415,7 +415,7 @@ export default function Welcome({
                                         key={step.title}
                                         className="bg-card px-5 py-6"
                                     >
-                                        <span className="font-mono text-[11px] text-muted-foreground">
+                                        <span className="font-mono text-xs text-muted-foreground">
                                             0{index + 1}
                                         </span>
                                         <h3 className="mt-4 text-sm font-semibold">
@@ -466,7 +466,7 @@ export default function Welcome({
                                         />
                                         Audit trail
                                     </span>
-                                    <span className="font-mono text-[10px] text-muted-foreground">
+                                    <span className="font-mono text-[11px] text-muted-foreground">
                                         deal #1
                                     </span>
                                 </div>
@@ -475,7 +475,7 @@ export default function Welcome({
                                         key={event}
                                         className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-border px-5 py-3.5 last:border-b-0"
                                     >
-                                        <span className="font-mono text-[11px] text-muted-foreground">
+                                        <span className="font-mono text-xs text-muted-foreground">
                                             {event}
                                         </span>
                                         <span className="text-right text-xs font-medium">
@@ -544,7 +544,7 @@ export default function Welcome({
                                         />
                                         Sandbox credentials
                                     </div>
-                                    <code className="font-mono text-[11px] leading-5">
+                                    <code className="font-mono text-xs leading-5">
                                         buyer@dealflow.test / password
                                         <br />
                                         seller@dealflow.test / password
@@ -562,7 +562,7 @@ export default function Welcome({
                                         />
                                     </Link>
                                 </div>
-                                <p className="mt-3 text-[11px] text-background/50">
+                                <p className="mt-3 text-xs text-background/50">
                                     No real money moves. Sandbox only.
                                 </p>
                             </div>

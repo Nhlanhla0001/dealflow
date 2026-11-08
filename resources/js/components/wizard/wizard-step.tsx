@@ -24,7 +24,7 @@ export function WizardStep({
     return (
         <section aria-labelledby="wizard-step-title" className="min-w-0">
             <div className="mb-6">
-                <p className="font-mono text-[11px] text-muted-foreground">
+                <p className="font-mono text-xs text-muted-foreground">
                     Step {stepNumber} of {totalSteps}
                 </p>
                 <h2

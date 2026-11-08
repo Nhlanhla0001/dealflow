@@ -94,7 +94,7 @@ export default function CheckoutShow({
                 />
 
                 <div className="mt-8 rounded-xl border border-border bg-card p-5 sm:p-6">
-                    <p className="font-mono text-[11px] text-muted-foreground">
+                    <p className="font-mono text-xs text-muted-foreground">
                         Step {index + 1} of {steps.length}
                     </p>
                     <h2 className="mt-2 text-xl font-semibold tracking-tight">

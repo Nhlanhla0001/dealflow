@@ -113,7 +113,7 @@ export default function AdminServices({
                                                             event.target.value,
                                                         )
                                                     }
-                                                    className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
+                                                    className="h-8 w-24 rounded-md border border-input bg-transparent px-2 text-xs"
                                                 >
                                                     <option value="published">
                                                         published

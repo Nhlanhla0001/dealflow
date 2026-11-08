@@ -46,7 +46,7 @@ export function NegotiationPreview() {
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_24px_70px_-32px_rgba(0,0,0,0.45)]">
                 <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                     <div>
-                        <p className="font-mono text-[11px] tracking-[0.16em] text-muted-foreground uppercase">
+                        <p className="font-mono text-xs tracking-[0.16em] text-muted-foreground uppercase">
                             Deal #4
                         </p>
                         <p className="mt-1 text-sm font-semibold">
@@ -54,7 +54,7 @@ export function NegotiationPreview() {
                         </p>
                     </div>
                     <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium ${
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
                             approved
                                 ? 'border-emerald-600/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
                                 : 'border-amber-600/30 bg-amber-500/10 text-amber-700 dark:text-amber-400'
@@ -70,7 +70,7 @@ export function NegotiationPreview() {
                 </div>
 
                 <div className="flex items-center gap-1 border-b border-border px-5 py-2.5">
-                    <span className="mr-2 text-[11px] font-medium text-muted-foreground">
+                    <span className="mr-2 text-xs font-medium text-muted-foreground">
                         View as
                     </span>
                     {(['buyer', 'seller'] as View[]).map((option) => (
@@ -92,7 +92,7 @@ export function NegotiationPreview() {
 
                 <div className="grid grid-cols-2 gap-px border-b border-border bg-border">
                     <div className="bg-card px-5 py-4">
-                        <p className="text-[11px] text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                             Buyer budget
                         </p>
                         <p className="mt-1 font-mono text-lg font-semibold tabular-nums">
@@ -100,7 +100,7 @@ export function NegotiationPreview() {
                         </p>
                     </div>
                     <div className="bg-card px-5 py-4">
-                        <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             Seller floor
                             {view === 'buyer' && (
                                 <LockKeyhole className="size-3" aria-hidden />
@@ -126,7 +126,7 @@ export function NegotiationPreview() {
                         >
                             <div className="flex flex-col items-center">
                                 <span
-                                    className={`flex size-7 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold ${
+                                    className={`flex size-7 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${
                                         message.tone === 'buyer'
                                             ? 'border-border bg-background text-foreground'
                                             : 'border-emerald-600/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
@@ -208,7 +208,7 @@ export function NegotiationPreview() {
                             </>
                         )}
                     </button>
-                    <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                    <p className="mt-2 text-center text-xs text-muted-foreground">
                         {approved
                             ? 'Both humans approved. Payment can now be created.'
                             : 'Interactive preview. No real approval is recorded.'}

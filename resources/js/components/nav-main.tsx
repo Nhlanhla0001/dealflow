@@ -31,7 +31,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                                     item.badge > 0 && (
                                         <Badge
                                             variant="secondary"
-                                            className="ml-auto h-5 min-w-5 justify-center px-1.5 text-[10px]"
+                                            className="ml-auto h-5 min-w-5 justify-center px-1.5 text-[11px]"
                                         >
                                             {item.badge > 99
                                                 ? '99+'

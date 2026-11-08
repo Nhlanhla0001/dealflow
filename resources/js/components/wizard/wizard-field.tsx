@@ -1,3 +1,4 @@
+import { cloneElement, isValidElement } from 'react';
 import InputError from '@/components/input-error';
 
 type Props = {
@@ -18,6 +19,14 @@ export function WizardField({
     children,
 }: Props) {
     const message = Array.isArray(error) ? error[0] : error;
+    const control = isValidElement(children)
+        ? cloneElement(
+              children as React.ReactElement<Record<string, unknown>>,
+              {
+                  'aria-invalid': message ? true : undefined,
+              },
+          )
+        : children;
 
     return (
         <div className="grid gap-2">
@@ -36,7 +45,7 @@ export function WizardField({
                     </span>
                 )}
             </label>
-            {children}
+            {control}
             {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
             <InputError message={message} />
         </div>

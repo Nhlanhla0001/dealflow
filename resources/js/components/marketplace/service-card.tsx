@@ -11,7 +11,7 @@ export function ServiceCard({ service }: { service: MarketplaceService }) {
                     {service.category?.name ?? 'Service'}
                 </span>
                 {service.negotiation_enabled && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
                         <Handshake className="size-3" aria-hidden />
                         Negotiable
                     </span>

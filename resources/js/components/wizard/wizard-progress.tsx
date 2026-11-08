@@ -52,7 +52,7 @@ export function WizardProgress({
                         <>
                             <span
                                 className={cn(
-                                    'flex size-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold',
+                                    'flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold',
                                     isComplete &&
                                         'border-emerald-700 bg-emerald-700 text-white dark:border-emerald-400 dark:bg-emerald-400 dark:text-emerald-950',
                                     isCurrent &&
@@ -71,7 +71,7 @@ export function WizardProgress({
                             </span>
                             <span
                                 className={cn(
-                                    'truncate text-[11px]',
+                                    'truncate text-xs',
                                     isCurrent
                                         ? 'font-medium text-foreground'
                                         : 'text-muted-foreground',
