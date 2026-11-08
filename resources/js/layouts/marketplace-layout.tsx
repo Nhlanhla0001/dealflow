@@ -1,5 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+
+import AppLogoIcon from '@/components/app-logo-icon';
 import type { Auth } from '@/types';
 
 export function MarketplaceLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +20,7 @@ export function MarketplaceLayout({ children }: { children: React.ReactNode }) {
                         className="flex items-center gap-2.5 text-sm font-semibold"
                     >
                         <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
-                            <Check className="size-4" aria-hidden />
+                            <AppLogoIcon className="size-5" />
                         </span>
                         <span>
                             DealFlow <span className="font-normal">AI</span>

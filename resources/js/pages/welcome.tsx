@@ -7,6 +7,7 @@ import {
     ShieldCheck,
     Wallet,
 } from 'lucide-react';
+import AppLogoIcon from '@/components/app-logo-icon';
 import { NegotiationPreview } from '@/components/marketing/negotiation-preview';
 import { ServiceCard } from '@/components/marketplace/service-card';
 import { dashboard, login, register } from '@/routes';
@@ -108,7 +109,7 @@ export default function Welcome({
                             className="flex items-center gap-2.5 text-sm font-semibold"
                         >
                             <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
-                                <Check className="size-4" aria-hidden />
+                                <AppLogoIcon className="size-5" />
                             </span>
                             <span>
                                 DealFlow <span className="font-normal">AI</span>
