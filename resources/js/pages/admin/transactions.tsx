@@ -47,13 +47,13 @@ export default function AdminTransactions({
                                         <th className="py-3 pr-4 font-medium">
                                             Deal
                                         </th>
-                                        <th className="px-4 py-3 font-medium">
+                                        <th className="hidden px-4 py-3 font-medium md:table-cell">
                                             Buyer
                                         </th>
-                                        <th className="px-4 py-3 font-medium">
+                                        <th className="hidden px-4 py-3 font-medium md:table-cell">
                                             Seller
                                         </th>
-                                        <th className="px-4 py-3 font-medium">
+                                        <th className="hidden px-4 py-3 font-medium md:table-cell">
                                             Budget
                                         </th>
                                         <th className="py-3 pl-4 font-medium">
@@ -77,14 +77,22 @@ export default function AdminTransactions({
                                                 <p className="text-xs text-muted-foreground">
                                                     #{transaction.id}
                                                 </p>
+                                                <p className="mt-1 text-xs text-muted-foreground md:hidden">
+                                                    {transaction.buyer?.name} →{' '}
+                                                    {transaction.seller?.name} ·{' '}
+                                                    {formatMoney(
+                                                        transaction.budget_minor,
+                                                        transaction.currency,
+                                                    )}
+                                                </p>
                                             </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
+                                            <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
                                                 {transaction.buyer?.name}
                                             </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
+                                            <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
                                                 {transaction.seller?.name}
                                             </td>
-                                            <td className="px-4 py-3">
+                                            <td className="hidden px-4 py-3 md:table-cell">
                                                 {formatMoney(
                                                     transaction.budget_minor,
                                                     transaction.currency,

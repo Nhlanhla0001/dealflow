@@ -55,10 +55,10 @@ export default function AdminServices({
                                         <th className="py-3 pr-4 font-medium">
                                             Service
                                         </th>
-                                        <th className="px-4 py-3 font-medium">
+                                        <th className="hidden px-4 py-3 font-medium md:table-cell">
                                             Seller
                                         </th>
-                                        <th className="px-4 py-3 font-medium">
+                                        <th className="hidden px-4 py-3 font-medium md:table-cell">
                                             Price
                                         </th>
                                         <th className="px-4 py-3 font-medium">
@@ -82,11 +82,18 @@ export default function AdminServices({
                                                 <p className="text-xs text-muted-foreground">
                                                     {service.category?.name}
                                                 </p>
+                                                <p className="mt-1 text-xs text-muted-foreground md:hidden">
+                                                    {service.seller?.name} ·{' '}
+                                                    {formatMoney(
+                                                        service.price_minor,
+                                                        service.currency,
+                                                    )}
+                                                </p>
                                             </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
+                                            <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
                                                 {service.seller?.name}
                                             </td>
-                                            <td className="px-4 py-3">
+                                            <td className="hidden px-4 py-3 md:table-cell">
                                                 {formatMoney(
                                                     service.price_minor,
                                                     service.currency,

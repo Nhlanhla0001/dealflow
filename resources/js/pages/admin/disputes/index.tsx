@@ -46,10 +46,10 @@ export default function AdminDisputes({
                                         <th className="py-3 pr-4 font-medium">
                                             Order
                                         </th>
-                                        <th className="px-4 py-3 font-medium">
+                                        <th className="hidden px-4 py-3 font-medium md:table-cell">
                                             Reason
                                         </th>
-                                        <th className="px-4 py-3 font-medium">
+                                        <th className="hidden px-4 py-3 font-medium md:table-cell">
                                             Opened by
                                         </th>
                                         <th className="px-4 py-3 font-medium">
@@ -75,11 +75,15 @@ export default function AdminDisputes({
                                                         ?.title ??
                                                         `Order #${dispute.order_id}`}
                                                 </Link>
+                                                <p className="mt-1 text-xs text-muted-foreground md:hidden">
+                                                    {dispute.reason} ·{' '}
+                                                    {dispute.opener?.name}
+                                                </p>
                                             </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
+                                            <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
                                                 {dispute.reason}
                                             </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
+                                            <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
                                                 {dispute.opener?.name}
                                             </td>
                                             <td className="px-4 py-3">

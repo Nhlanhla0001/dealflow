@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     Archive,
     ArrowUpRight,
@@ -7,6 +8,7 @@ import {
     Plus,
     Send,
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,7 +36,76 @@ const statusMeta: Record<
     archived: { label: 'Archived', variant: 'outline' },
 };
 
+function ServiceActions({
+    service,
+    onStatus,
+    onArchive,
+}: {
+    service: MarketplaceService;
+    onStatus: (service: MarketplaceService, status: ServiceStatus) => void;
+    onArchive: (service: MarketplaceService) => void;
+}) {
+    return (
+        <div className="flex flex-wrap items-center justify-start gap-1 md:justify-end">
+            {service.status === 'published' && (
+                <Button asChild variant="ghost" size="sm">
+                    <a
+                        href={`/services/${service.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        <ArrowUpRight className="size-3.5" aria-hidden />
+                        View
+                    </a>
+                </Button>
+            )}
+            <Button asChild variant="ghost" size="sm">
+                <Link href={`/seller/services/${service.id}/edit`}>
+                    <Pencil className="size-3.5" aria-hidden />
+                    Edit
+                </Link>
+            </Button>
+            {service.status === 'published' && (
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onStatus(service, 'unpublished')}
+                >
+                    <EyeOff className="size-3.5" aria-hidden />
+                    Unpublish
+                </Button>
+            )}
+            {service.status === 'unpublished' && (
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onStatus(service, 'published')}
+                >
+                    <Send className="size-3.5" aria-hidden />
+                    Publish
+                </Button>
+            )}
+            {service.status !== 'archived' && (
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onArchive(service)}
+                >
+                    <Archive className="size-3.5" aria-hidden />
+                    Archive
+                </Button>
+            )}
+        </div>
+    );
+}
+
 export default function SellerServicesIndex({ services, canCreate }: Props) {
+    const [archiveTarget, setArchiveTarget] =
+        useState<MarketplaceService | null>(null);
+
     const updateStatus = (
         service: MarketplaceService,
         status: ServiceStatus,
@@ -111,16 +182,16 @@ export default function SellerServicesIndex({ services, canCreate }: Props) {
                                             <th className="py-3 pr-4 font-medium">
                                                 Service
                                             </th>
-                                            <th className="px-4 py-3 font-medium">
+                                            <th className="hidden px-4 py-3 font-medium md:table-cell">
                                                 Price
                                             </th>
-                                            <th className="px-4 py-3 font-medium">
+                                            <th className="hidden px-4 py-3 font-medium md:table-cell">
                                                 Delivery
                                             </th>
-                                            <th className="px-4 py-3 font-medium">
+                                            <th className="hidden px-4 py-3 font-medium md:table-cell">
                                                 Status
                                             </th>
-                                            <th className="py-3 pl-4 text-right font-medium">
+                                            <th className="hidden py-3 pl-4 text-right font-medium md:table-cell">
                                                 Actions
                                             </th>
                                         </tr>
@@ -144,18 +215,42 @@ export default function SellerServicesIndex({ services, canCreate }: Props) {
                                                                 ?.name ??
                                                                 'Uncategorised'}
                                                         </p>
+                                                        <p className="mt-1 text-xs text-muted-foreground md:hidden">
+                                                            {formatMoney(
+                                                                service.price_minor,
+                                                                service.currency,
+                                                            )}{' '}
+                                                            ·{' '}
+                                                            {
+                                                                service.delivery_days
+                                                            }{' '}
+                                                            days · {meta.label}
+                                                        </p>
+                                                        <div className="mt-2 md:hidden">
+                                                            <ServiceActions
+                                                                service={
+                                                                    service
+                                                                }
+                                                                onStatus={
+                                                                    updateStatus
+                                                                }
+                                                                onArchive={
+                                                                    setArchiveTarget
+                                                                }
+                                                            />
+                                                        </div>
                                                     </td>
-                                                    <td className="px-4 py-4 font-medium">
+                                                    <td className="hidden px-4 py-4 font-medium md:table-cell">
                                                         {formatMoney(
                                                             service.price_minor,
                                                             service.currency,
                                                         )}
                                                     </td>
-                                                    <td className="px-4 py-4 text-muted-foreground">
+                                                    <td className="hidden px-4 py-4 text-muted-foreground md:table-cell">
                                                         {service.delivery_days}{' '}
                                                         days
                                                     </td>
-                                                    <td className="px-4 py-4">
+                                                    <td className="hidden px-4 py-4 md:table-cell">
                                                         <Badge
                                                             variant={
                                                                 meta.variant
@@ -164,104 +259,16 @@ export default function SellerServicesIndex({ services, canCreate }: Props) {
                                                             {meta.label}
                                                         </Badge>
                                                     </td>
-                                                    <td className="py-4 pl-4">
-                                                        <div className="flex flex-wrap justify-end gap-1">
-                                                            {service.status ===
-                                                                'published' && (
-                                                                <Button
-                                                                    asChild
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                >
-                                                                    <a
-                                                                        href={`/services/${service.slug}`}
-                                                                        target="_blank"
-                                                                        rel="noreferrer"
-                                                                    >
-                                                                        <ArrowUpRight
-                                                                            className="size-3.5"
-                                                                            aria-hidden
-                                                                        />
-                                                                        View
-                                                                    </a>
-                                                                </Button>
-                                                            )}
-                                                            <Button
-                                                                asChild
-                                                                variant="ghost"
-                                                                size="sm"
-                                                            >
-                                                                <Link
-                                                                    href={`/seller/services/${service.id}/edit`}
-                                                                >
-                                                                    <Pencil
-                                                                        className="size-3.5"
-                                                                        aria-hidden
-                                                                    />
-                                                                    Edit
-                                                                </Link>
-                                                            </Button>
-                                                            {service.status ===
-                                                                'published' && (
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        updateStatus(
-                                                                            service,
-                                                                            'unpublished',
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <EyeOff
-                                                                        className="size-3.5"
-                                                                        aria-hidden
-                                                                    />
-                                                                    Unpublish
-                                                                </Button>
-                                                            )}
-                                                            {service.status ===
-                                                                'unpublished' && (
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        updateStatus(
-                                                                            service,
-                                                                            'published',
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Send
-                                                                        className="size-3.5"
-                                                                        aria-hidden
-                                                                    />
-                                                                    Publish
-                                                                </Button>
-                                                            )}
-                                                            {service.status !==
-                                                                'archived' && (
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        updateStatus(
-                                                                            service,
-                                                                            'archived',
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Archive
-                                                                        className="size-3.5"
-                                                                        aria-hidden
-                                                                    />
-                                                                    Archive
-                                                                </Button>
-                                                            )}
-                                                        </div>
+                                                    <td className="hidden py-4 pl-4 md:table-cell">
+                                                        <ServiceActions
+                                                            service={service}
+                                                            onStatus={
+                                                                updateStatus
+                                                            }
+                                                            onArchive={
+                                                                setArchiveTarget
+                                                            }
+                                                        />
                                                     </td>
                                                 </tr>
                                             );
@@ -273,6 +280,29 @@ export default function SellerServicesIndex({ services, canCreate }: Props) {
                     </CardContent>
                 </Card>
             </div>
+
+            <ConfirmDialog
+                open={archiveTarget !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setArchiveTarget(null);
+                    }
+                }}
+                onConfirm={() => {
+                    if (archiveTarget !== null) {
+                        updateStatus(archiveTarget, 'archived');
+                    }
+
+                    setArchiveTarget(null);
+                }}
+                title="Archive this service?"
+                description={`${
+                    archiveTarget?.title ?? 'This service'
+                } will leave the marketplace. Existing deals and orders are not affected. Archived services cannot be republished from this screen.`}
+                confirmLabel="Archive service"
+                cancelLabel="Keep service"
+                destructive
+            />
         </>
     );
 }

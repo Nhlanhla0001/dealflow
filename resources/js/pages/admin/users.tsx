@@ -64,10 +64,10 @@ export default function AdminUsers({
                                         <th className="px-4 py-3 font-medium">
                                             Role
                                         </th>
-                                        <th className="px-4 py-3 font-medium">
+                                        <th className="hidden px-4 py-3 font-medium md:table-cell">
                                             Services
                                         </th>
-                                        <th className="py-3 pl-4 font-medium">
+                                        <th className="hidden py-3 pl-4 font-medium md:table-cell">
                                             Deals
                                         </th>
                                     </tr>
@@ -84,6 +84,18 @@ export default function AdminUsers({
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
                                                     {user.email}
+                                                </p>
+                                                <p className="mt-1 text-xs text-muted-foreground md:hidden">
+                                                    {user.services_count}{' '}
+                                                    services ·{' '}
+                                                    {
+                                                        user.buyer_transactions_count
+                                                    }{' '}
+                                                    buying ·{' '}
+                                                    {
+                                                        user.seller_transactions_count
+                                                    }{' '}
+                                                    selling
                                                 </p>
                                             </td>
                                             <td className="px-4 py-3">
@@ -107,12 +119,12 @@ export default function AdminUsers({
                                                     ))}
                                                 </select>
                                             </td>
-                                            <td className="px-4 py-3">
+                                            <td className="hidden px-4 py-3 md:table-cell">
                                                 <Badge variant="outline">
                                                     {user.services_count}
                                                 </Badge>
                                             </td>
-                                            <td className="py-3 pl-4 text-muted-foreground">
+                                            <td className="hidden py-3 pl-4 text-muted-foreground md:table-cell">
                                                 {user.buyer_transactions_count}{' '}
                                                 buying ·{' '}
                                                 {user.seller_transactions_count}{' '}

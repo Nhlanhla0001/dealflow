@@ -48,7 +48,7 @@ export default function MarketplaceShow({
 
     return (
         <MarketplaceLayout>
-            <Head title={`${service.title} — DealFlow AI`}>
+            <Head title={service.title}>
                 <meta
                     name="description"
                     content={service.description.slice(0, 155)}

@@ -52,7 +52,7 @@ export default function MarketplaceIndex({
 
     return (
         <MarketplaceLayout>
-            <Head title={`${title} — DealFlow AI`}>
+            <Head title={title}>
                 <meta
                     name="description"
                     content="Discover services with clear deliverables, delivery windows, and structured negotiation. Approve the terms before you pay."

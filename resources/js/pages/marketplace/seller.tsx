@@ -15,7 +15,7 @@ type Props = {
 export default function MarketplaceSeller({ seller, services }: Props) {
     return (
         <MarketplaceLayout>
-            <Head title={`${seller.name} — DealFlow AI`}>
+            <Head title={seller.name}>
                 <meta
                     name="description"
                     content={`Services published by ${seller.name} on DealFlow AI.`}
