@@ -99,6 +99,13 @@ export default function Dashboard({
         auth.user.role === 'buyer' ||
         auth.user.role === 'both' ||
         auth.user.role === 'admin';
+    const workspaceLabel =
+        {
+            buyer: 'Buyer workspace',
+            seller: 'Seller workspace',
+            both: 'Buyer and seller workspace',
+            admin: 'Admin workspace',
+        }[auth.user.role] ?? 'DealFlow AI';
 
     return (
         <>
@@ -108,7 +115,7 @@ export default function Dashboard({
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
                         <p className="text-xs font-medium tracking-[0.22em] text-muted-foreground uppercase">
-                            DealFlow AI
+                            {workspaceLabel}
                         </p>
                         <h1 className="mt-2 text-2xl font-semibold tracking-tight">
                             Deal room
