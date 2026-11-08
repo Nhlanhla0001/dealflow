@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import {
     Card,
@@ -122,6 +123,7 @@ export default function AdminUsers({
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination paginator={users} itemLabel="users" />
                     </CardContent>
                 </Card>
             </div>

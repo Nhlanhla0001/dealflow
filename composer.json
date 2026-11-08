@@ -67,10 +67,11 @@
             "npm run check",
             "npm run types:check",
             "@lint:check",
+            "@types:check",
             "@php artisan test --compact"
         ],
         "types:check": [
-            "phpstan analyse --memory-limit=1G"
+            "phpstan analyse --memory-limit=1G --no-progress"
         ],
         "test:pgsql": [
             "Composer\\Config::disableProcessTimeout",

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Database\Factories\AgentRunFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,7 +38,7 @@ use Illuminate\Support\Carbon;
 ])]
 class AgentRun extends Model
 {
-    /** @use HasFactory<AgentRunFactory> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
     /**
@@ -54,6 +54,9 @@ class AgentRun extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<NegotiationSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(NegotiationSession::class, 'negotiation_session_id');

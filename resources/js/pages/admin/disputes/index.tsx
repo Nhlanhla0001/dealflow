@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import {
     Card,
@@ -102,6 +103,7 @@ export default function AdminDisputes({
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination paginator={disputes} itemLabel="disputes" />
                     </CardContent>
                 </Card>
             </div>

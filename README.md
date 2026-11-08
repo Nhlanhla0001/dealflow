@@ -50,8 +50,8 @@ The next slice connects the marketplace to the existing negotiation and payment 
 - **Turn limits and credit exhaustion are enforced.** The session stops at the configured turn cap, and an exhausted AI balance falls back without calling the model.
 - **Checkout wizard** at `/transactions/{id}/checkout`: seven steps covering agreement, amount, payment method, PayPal, server verification, result, and order.
 - **Orders** at `/orders`: paid orders become trackable records. Sellers start work, post progress, and submit delivery; buyers accept or request revisions within the agreed limit. Order transitions are row-locked.
-- **Dispute centre** at `/disputes/{id}`: a party opens a dispute with a reason, description, and optional evidence link. The order moves to disputed, a dispute timeline is recorded, and administrators can move it to under review, resolved, or rejected with a written resolution.
-- **Admin console** at `/admin`: platform stats, user role management, service moderation, transaction visibility, dispute queue, and dispute resolution.
+- **Dispute centre** at `/disputes/{id}`: a party opens a dispute with a reason, description, an optional evidence link, and an optional evidence file (PDF, PNG, JPG, WebP, or ZIP up to 10 MB). Files are stored privately and downloaded through an authorized route. The order moves to disputed, a dispute timeline is recorded, and administrators can move it to under review, resolved, or rejected with a written resolution.
+- **Admin console** at `/admin`: platform stats, user role management, service moderation, transaction visibility, dispute queue, dispute resolution, and server-side pagination on every list.
 
 ![Checkout wizard](docs/screenshots/checkout.png)
 
@@ -137,6 +137,14 @@ php artisan queue:work --sleep=1 --tries=3 --timeout=120
 ```
 
 The production template enables PostgreSQL, Redis sessions/cache/queues, encrypted secure cookies, HTTPS-only session cookies, and `APP_DEBUG=false`.
+
+Dispute evidence uploads need a writable PHP upload directory and limits above the 10 MB validation cap. Set `upload_tmp_dir` to a writable path and use at least `upload_max_filesize = 12M` and `post_max_size = 16M` in the production PHP configuration. If uploads fail with "The evidence failed to upload", check `UPLOAD_ERR_NO_TMP_DIR` first.
+
+### Quality gates
+
+`composer ci:check` runs the formatter, TypeScript, Pint, PHPStan level 7, and the full PHPUnit suite. `composer test:pgsql` runs the same suite on PostgreSQL. CI runs both lanes.
+
+The committed `AGENTS.md`, `.ai/rules`, `opencode.json`, and `.opencode/plugins/skill-router` enforce the agent workflow. The skills themselves are installed in the local OpenCode skill sources; a fresh clone needs the Impeccable, Corey Haines, Laravel, and Superpowers skill packs installed before every gate can pass.
 
 ### PostgreSQL verification
 
@@ -297,7 +305,8 @@ tests/Feature/               HTTP and workflow tests
 - The AI has no tool that can approve terms or capture a payment.
 - Webhook deliveries are rejected unless PayPal verifies the signature.
 - Wizard drafts are scoped to their owner and checked server-side on every read and write.
-- The demo is not a production marketplace: it has no KYC, disputes, refunds, or multi-tenant isolation.
+- Dispute evidence is stored on the private local disk and served only to the two parties and administrators.
+- The demo is not a production marketplace: it has no KYC, refunds, escrow, seller payouts, or multi-tenant isolation.
 
 ## License
 

@@ -328,6 +328,7 @@ export default function OrderShow({
                                 <form
                                     method="POST"
                                     action={`/orders/${order.id}/dispute`}
+                                    encType="multipart/form-data"
                                     className="mt-8 space-y-3 border-t border-border pt-6"
                                 >
                                     <input
@@ -347,8 +348,25 @@ export default function OrderShow({
                                         />
                                     </div>
                                     <div className="grid gap-2">
+                                        <Label htmlFor="evidence">
+                                            Evidence file (optional)
+                                        </Label>
+                                        <Input
+                                            id="evidence"
+                                            name="evidence"
+                                            type="file"
+                                            accept=".pdf,.png,.jpg,.jpeg,.webp,.zip"
+                                            className="file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            PDF, PNG, JPG, WebP, or ZIP up to 10
+                                            MB. Stored privately and shared only
+                                            with the other party and admins.
+                                        </p>
+                                    </div>
+                                    <div className="grid gap-2">
                                         <Label htmlFor="evidence_url">
-                                            Evidence link (optional)
+                                            Or an evidence link (optional)
                                         </Label>
                                         <Input
                                             id="evidence_url"

@@ -39,7 +39,7 @@ class BuyerNegotiationAgent implements Agent, HasStructuredOutput
         try {
             $response = $this->prompt(json_encode($context, JSON_THROW_ON_ERROR));
 
-            return is_array($response->structured) ? $response->structured : null;
+            return $response->structured;
         } catch (Throwable $exception) {
             report($exception);
 

@@ -84,7 +84,7 @@ class WizardDraftService
         if ($draft->wasRecentlyCreated) {
             $definition = $this->registry->for('onboarding');
             $data = [
-                'role' => $user->role?->value ?? 'buyer',
+                'role' => $user->role->value,
                 'headline' => $user->headline,
                 'bio' => $user->bio,
                 'timezone' => $user->timezone ?? 'UTC',
@@ -146,7 +146,7 @@ class WizardDraftService
             } else {
                 $opening = $transaction->seller_floor_minor
                     ?? $transaction->seller_offer_minor
-                    ?? $transaction->offer?->price_minor
+                    ?? $transaction->offer()->value('price_minor')
                     ?? $transaction->budget_minor;
                 $data['floor'] = $opening / 100;
                 $data['objective'] = 'Protect my private floor, delivery capacity, and scope.';

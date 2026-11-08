@@ -120,6 +120,7 @@ class MarketplaceController extends Controller
 
     /**
      * @param  array{q?: string, category?: string, price_min?: string, price_max?: string, sort?: string}  $filters
+     * @return Builder<Service>
      */
     private function serviceQuery(array $filters): Builder
     {

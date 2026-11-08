@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderEvent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -46,7 +47,7 @@ class OrderController extends Controller
             'order' => $order,
             'isBuyer' => $order->buyer_id === $request->user()->id,
             'isSeller' => $order->seller_id === $request->user()->id,
-            'revisionLimit' => $order->transaction->service?->revisions ?? 1,
+            'revisionLimit' => $order->transaction->service()->value('revisions') ?? 1,
         ]);
     }
 
@@ -161,7 +162,7 @@ class OrderController extends Controller
                 return $this->invalid('Only a delivered order can be sent back for revision.');
             }
 
-            $limit = $fresh->transaction->service?->revisions ?? 1;
+            $limit = $fresh->transaction->service()->value('revisions') ?? 1;
 
             if ($fresh->revisions_used >= $limit) {
                 return $this->invalid('The revision limit for this order has been reached.');
@@ -185,6 +186,7 @@ class OrderController extends Controller
             'reason' => ['required', 'string', 'max:120'],
             'message' => ['required', 'string', 'max:3000'],
             'evidence_url' => ['nullable', 'url', 'max:2048'],
+            'evidence' => ['nullable', 'file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,webp,zip'],
         ]);
 
         return DB::transaction(function () use ($order, $request, $validated): RedirectResponse {
@@ -204,6 +206,18 @@ class OrderController extends Controller
                 'evidence_url' => $validated['evidence_url'] ?? null,
                 'status' => 'open',
             ]);
+
+            $evidence = $request->file('evidence');
+
+            if ($evidence instanceof UploadedFile) {
+                $dispute->update([
+                    'evidence_path' => $evidence->store(
+                        'dispute-evidence/'.$dispute->id,
+                        'local',
+                    ),
+                    'evidence_original_name' => $evidence->getClientOriginalName(),
+                ]);
+            }
 
             DisputeEvent::create([
                 'dispute_id' => $dispute->id,

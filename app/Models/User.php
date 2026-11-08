@@ -28,6 +28,12 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property UserRole $role
+ * @property string|null $headline
+ * @property string|null $bio
+ * @property string $timezone
+ * @property bool $notification_email
+ * @property bool $notification_in_app
+ * @property Carbon|null $onboarding_completed_at
  * @property Carbon|null $updated_at
  */
 #[Fillable([
@@ -66,31 +72,49 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         ];
     }
 
+    /**
+     * @return HasMany<Transaction, $this>
+     */
     public function buyerTransactions(): HasMany
     {
         return $this->hasMany(Transaction::class, 'buyer_id');
     }
 
+    /**
+     * @return HasMany<Transaction, $this>
+     */
     public function sellerTransactions(): HasMany
     {
         return $this->hasMany(Transaction::class, 'seller_id');
     }
 
+    /**
+     * @return HasMany<Service, $this>
+     */
     public function services(): HasMany
     {
         return $this->hasMany(Service::class, 'seller_id');
     }
 
+    /**
+     * @return HasMany<WizardDraft, $this>
+     */
     public function wizardDrafts(): HasMany
     {
         return $this->hasMany(WizardDraft::class);
     }
 
+    /**
+     * @return HasMany<AgentConfiguration, $this>
+     */
     public function agentConfigurations(): HasMany
     {
         return $this->hasMany(AgentConfiguration::class);
     }
 
+    /**
+     * @return HasMany<AiCreditLedgerEntry, $this>
+     */
     public function aiCreditLedgerEntries(): HasMany
     {
         return $this->hasMany(AiCreditLedgerEntry::class);

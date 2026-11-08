@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class AiUsageRecord extends Model
 {
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
     /**
@@ -46,16 +48,25 @@ class AiUsageRecord extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<AgentConfiguration, $this>
+     */
     public function configuration(): BelongsTo
     {
         return $this->belongsTo(AgentConfiguration::class, 'agent_configuration_id');
     }
 
+    /**
+     * @return BelongsTo<NegotiationSession, $this>
+     */
     public function session(): BelongsTo
     {
         return $this->belongsTo(NegotiationSession::class, 'negotiation_session_id');
     }
 
+    /**
+     * @return BelongsTo<AgentRun, $this>
+     */
     public function run(): BelongsTo
     {
         return $this->belongsTo(AgentRun::class, 'agent_run_id');

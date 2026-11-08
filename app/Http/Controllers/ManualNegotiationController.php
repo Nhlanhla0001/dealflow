@@ -44,7 +44,7 @@ class ManualNegotiationController extends Controller
         if ($role === 'seller') {
             $floor = (int) ($transaction->seller_floor_minor
                 ?? $transaction->seller_offer_minor
-                ?? $transaction->offer?->price_minor
+                ?? $transaction->offer()->value('price_minor')
                 ?? 0);
 
             if ($priceMinor < $floor) {
@@ -120,7 +120,7 @@ class ManualNegotiationController extends Controller
 
         $floor = (int) ($transaction->seller_floor_minor
             ?? $transaction->seller_offer_minor
-            ?? $transaction->offer?->price_minor
+            ?? $transaction->offer()->value('price_minor')
             ?? 0);
 
         if ($priceMinor < $floor) {

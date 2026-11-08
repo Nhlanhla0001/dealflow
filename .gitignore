@@ -29,7 +29,8 @@ yarn-error.log
 /.nova
 /.zed
 /.agents
-/.ai
+/.ai/*
+!/.ai/rules/
 /.impeccable
 /.playwright-mcp
 /.amp
@@ -42,11 +43,13 @@ yarn-error.log
 /.kiro
 /.pi
 /.mcp.json
-/.opencode
-/AGENTS.md
+/.opencode/*
+!/.opencode/plugins/
+!/.opencode/commands/
+/.opencode/commands/*
+!/.opencode/commands/ship.md
 /CLAUDE.md
 /boost.json
-/opencode.json
 /opencode.jsonc
 
 # impeccable-ignore-start

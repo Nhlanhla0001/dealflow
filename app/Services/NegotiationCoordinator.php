@@ -64,7 +64,7 @@ class NegotiationCoordinator
             $deliveryWindow,
         );
 
-        if ($buyerProposal === null || $buyerProposal['action'] === 'reject') {
+        if ($buyerProposal['action'] === 'reject') {
             $this->deadlock($session, $transaction, $buyerMax, $deliveryWindow);
 
             return;
@@ -123,7 +123,7 @@ class NegotiationCoordinator
             $buyerDelivery,
         );
 
-        if ($sellerProposal === null || $sellerProposal['action'] === 'reject') {
+        if ($sellerProposal['action'] === 'reject') {
             $this->deadlock($session, $transaction, $buyerMax, $deliveryWindow);
 
             return;
@@ -190,7 +190,7 @@ class NegotiationCoordinator
             $deliveryWindow,
         );
 
-        if ($buyerFollowUp === null || $buyerFollowUp['action'] === 'reject') {
+        if ($buyerFollowUp['action'] === 'reject') {
             $this->deadlock($session, $transaction, $buyerMax, $deliveryWindow);
 
             return;
@@ -238,7 +238,7 @@ class NegotiationCoordinator
     }
 
     /**
-     * @return array{action: string, price_minor: int, delivery_days: int, reason: string}|null
+     * @return array{action: string, price_minor: int, delivery_days: int, reason: string}
      */
     private function buyerProposal(
         NegotiationSession $session,
@@ -246,7 +246,7 @@ class NegotiationCoordinator
         int $buyerMax,
         int $sellerOffer,
         int $deliveryWindow,
-    ): ?array {
+    ): array {
         $context = [
             'role' => 'buyer',
             'deal' => $transaction->title,
@@ -317,7 +317,7 @@ class NegotiationCoordinator
     }
 
     /**
-     * @return array{action: string, price_minor: int, delivery_days: int, reason: string}|null
+     * @return array{action: string, price_minor: int, delivery_days: int, reason: string}
      */
     private function sellerProposal(
         NegotiationSession $session,
@@ -326,7 +326,7 @@ class NegotiationCoordinator
         int $sellerFloor,
         int $buyerPrice,
         int $buyerDelivery,
-    ): ?array {
+    ): array {
         $context = [
             'role' => 'seller',
             'deal' => $transaction->title,
@@ -402,7 +402,7 @@ class NegotiationCoordinator
     }
 
     /**
-     * @return array{action: string, price_minor: int, delivery_days: int, reason: string}|null
+     * @return array{action: string, price_minor: int, delivery_days: int, reason: string}
      */
     private function buyerFollowUpProposal(
         NegotiationSession $session,
@@ -411,7 +411,7 @@ class NegotiationCoordinator
         int $sellerOffer,
         int $sellerCounterPrice,
         int $deliveryWindow,
-    ): ?array {
+    ): array {
         $context = [
             'role' => 'buyer',
             'deal' => $transaction->title,
@@ -616,6 +616,9 @@ class NegotiationCoordinator
         ]);
     }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     private function storeMessage(
         NegotiationSession $session,
         string $agent,
@@ -677,10 +680,12 @@ class NegotiationCoordinator
 
         return $session->agentRuns()->create([
             'agent' => $agent,
-            'provider' => $configuration?->provider ?? config('ai.default'),
-            'model' => $configuration?->model
-                ?? config('ai.providers.gemini.models.text.default')
-                ?? 'unknown',
+            'provider' => $configuration instanceof AgentConfiguration
+                ? $configuration->provider
+                : config('ai.default'),
+            'model' => $configuration instanceof AgentConfiguration
+                ? $configuration->model
+                : (config('ai.providers.gemini.models.text.default') ?? 'unknown'),
             'status' => $status,
             'input' => $context,
             'output' => $proposal,

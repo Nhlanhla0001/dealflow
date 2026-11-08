@@ -19,6 +19,8 @@ export type DealDispute = {
     reason: string;
     description: string;
     evidence_url: string | null;
+    evidence_path: string | null;
+    evidence_original_name: string | null;
     status: DisputeStatus;
     resolution: string | null;
     resolved_by: number | null;

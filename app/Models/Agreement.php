@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Enums\AgreementStatus;
-use Database\Factories\AgreementFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,7 +36,7 @@ use Illuminate\Support\Carbon;
 ])]
 class Agreement extends Model
 {
-    /** @use HasFactory<AgreementFactory> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
     /**
@@ -53,16 +53,25 @@ class Agreement extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Transaction, $this>
+     */
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);
     }
 
+    /**
+     * @return HasMany<AgreementApproval, $this>
+     */
     public function approvals(): HasMany
     {
         return $this->hasMany(AgreementApproval::class);
     }
 
+    /**
+     * @return HasMany<PaymentOrder, $this>
+     */
     public function paymentOrders(): HasMany
     {
         return $this->hasMany(PaymentOrder::class);

@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Enums\PaymentStatus;
-use Database\Factories\PaymentOrderFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,7 +40,7 @@ use Illuminate\Support\Carbon;
 #[Hidden(['payload'])]
 class PaymentOrder extends Model
 {
-    /** @use HasFactory<PaymentOrderFactory> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
     /**
@@ -55,16 +55,25 @@ class PaymentOrder extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Transaction, $this>
+     */
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);
     }
 
+    /**
+     * @return BelongsTo<Agreement, $this>
+     */
     public function agreement(): BelongsTo
     {
         return $this->belongsTo(Agreement::class);
     }
 
+    /**
+     * @return HasMany<PaymentEvent, $this>
+     */
     public function events(): HasMany
     {
         return $this->hasMany(PaymentEvent::class);

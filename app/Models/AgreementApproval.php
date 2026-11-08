@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Database\Factories\AgreementApprovalFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
 #[Fillable(['agreement_id', 'user_id', 'role', 'approved_at'])]
 class AgreementApproval extends Model
 {
-    /** @use HasFactory<AgreementApprovalFactory> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
     /**
@@ -34,11 +34,17 @@ class AgreementApproval extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Agreement, $this>
+     */
     public function agreement(): BelongsTo
     {
         return $this->belongsTo(Agreement::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

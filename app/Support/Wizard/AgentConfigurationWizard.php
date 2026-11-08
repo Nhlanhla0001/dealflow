@@ -246,7 +246,7 @@ class AgentConfigurationWizard implements WizardDefinition
 
         if ($role === 'seller') {
             $floorMinor = (int) round(((float) $data['floor']) * 100);
-            $asking = (int) ($transaction->seller_offer_minor ?? $transaction->offer?->price_minor ?? 0);
+            $asking = (int) ($transaction->seller_offer_minor ?? $transaction->offer()->value('price_minor') ?? 0);
 
             if ($asking > 0 && $floorMinor > $asking) {
                 throw ValidationException::withMessages([

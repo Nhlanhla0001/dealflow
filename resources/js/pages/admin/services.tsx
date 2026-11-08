@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import {
     Card,
@@ -123,6 +124,7 @@ export default function AdminServices({
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination paginator={services} itemLabel="services" />
                     </CardContent>
                 </Card>
             </div>

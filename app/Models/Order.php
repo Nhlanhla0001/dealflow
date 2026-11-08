@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +19,12 @@ use Illuminate\Support\Carbon;
  * @property int $amount_minor
  * @property string $currency
  * @property string $status
+ * @property int $revisions_used
+ * @property string|null $delivery_message
+ * @property string|null $delivery_url
  * @property Carbon|null $paid_at
+ * @property Carbon|null $started_at
+ * @property Carbon|null $delivered_at
  * @property Carbon|null $completed_at
  */
 #[Fillable([
@@ -38,6 +44,7 @@ use Illuminate\Support\Carbon;
 ])]
 class Order extends Model
 {
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
     /**
@@ -55,26 +62,41 @@ class Order extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Transaction, $this>
+     */
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
     }
 
+    /**
+     * @return HasMany<OrderEvent, $this>
+     */
     public function events(): HasMany
     {
         return $this->hasMany(OrderEvent::class)->latest();
     }
 
+    /**
+     * @return HasOne<Dispute, $this>
+     */
     public function dispute(): HasOne
     {
         return $this->hasOne(Dispute::class)->latestOfMany();

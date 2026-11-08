@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('reason', 120);
             $table->text('description');
             $table->string('evidence_url')->nullable();
+            $table->string('evidence_path')->nullable();
+            $table->string('evidence_original_name')->nullable();
             $table->string('status', 32)->default('open');
             $table->text('resolution')->nullable();
             $table->foreignId('resolved_by')->nullable()->constrained('users')->nullOnDelete();

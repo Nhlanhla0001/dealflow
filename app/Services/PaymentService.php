@@ -76,9 +76,7 @@ class PaymentService
             'payload' => $response,
         ]);
 
-        if ($transaction->state === TransactionState::Approved) {
-            $transaction->transitionTo(TransactionState::PaymentPending);
-        }
+        $transaction->transitionTo(TransactionState::PaymentPending);
 
         $this->audit->record($transaction->buyer, $transaction, 'payment.order_created', [
             'payment_order_id' => $paymentOrder->id,
@@ -218,11 +216,14 @@ class PaymentService
      */
     private function approvalUrl(array $response): ?string
     {
-        /** @var Collection<int, array<string, string>> $links */
-        $links = collect($response['links'] ?? []);
+        /** @var array<int, array<string, string>> $links */
+        $links = $response['links'] ?? [];
 
-        return $links->firstWhere('rel', 'approve')['href']
-            ?? $links->firstWhere('rel', 'payer-action')['href']
+        /** @var Collection<int, array<string, string>> $collection */
+        $collection = collect($links);
+
+        return $collection->firstWhere('rel', 'approve')['href']
+            ?? $collection->firstWhere('rel', 'payer-action')['href']
             ?? null;
     }
 }

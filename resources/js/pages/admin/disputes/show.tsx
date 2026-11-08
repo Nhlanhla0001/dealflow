@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ExternalLink, ShieldAlert } from 'lucide-react';
+import { Download, ExternalLink, ShieldAlert } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -73,6 +73,20 @@ export default function AdminDisputeShow({
                                     >
                                         Open evidence
                                         <ExternalLink
+                                            className="size-3.5"
+                                            aria-hidden
+                                        />
+                                    </a>
+                                )}
+                                {dispute.evidence_path && (
+                                    <a
+                                        href={`/disputes/${dispute.id}/evidence`}
+                                        className="inline-flex items-center gap-1 font-medium underline underline-offset-4"
+                                    >
+                                        Download{' '}
+                                        {dispute.evidence_original_name ??
+                                            'evidence'}
+                                        <Download
                                             className="size-3.5"
                                             aria-hidden
                                         />

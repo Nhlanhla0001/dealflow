@@ -18,6 +18,7 @@ use InvalidArgumentException;
  * @property int $id
  * @property int $buyer_id
  * @property int $seller_id
+ * @property int|null $service_id
  * @property string $title
  * @property string $description
  * @property string $currency
@@ -26,6 +27,7 @@ use InvalidArgumentException;
  * @property int|null $seller_offer_minor
  * @property int $delivery_days
  * @property int|null $seller_delivery_days
+ * @property string $negotiation_mode
  * @property TransactionState $state
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -65,56 +67,89 @@ class Transaction extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
     }
 
+    /**
+     * @return BelongsTo<Service, $this>
+     */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
+    /**
+     * @return HasOne<Offer, $this>
+     */
     public function offer(): HasOne
     {
         return $this->hasOne(Offer::class);
     }
 
+    /**
+     * @return HasOne<NegotiationSession, $this>
+     */
     public function negotiationSession(): HasOne
     {
         return $this->hasOne(NegotiationSession::class);
     }
 
+    /**
+     * @return HasMany<Agreement, $this>
+     */
     public function agreements(): HasMany
     {
         return $this->hasMany(Agreement::class);
     }
 
+    /**
+     * @return HasOne<Agreement, $this>
+     */
     public function latestAgreement(): HasOne
     {
         return $this->hasOne(Agreement::class)->latestOfMany('version');
     }
 
+    /**
+     * @return HasMany<PaymentOrder, $this>
+     */
     public function paymentOrders(): HasMany
     {
         return $this->hasMany(PaymentOrder::class);
     }
 
+    /**
+     * @return HasMany<AgentConfiguration, $this>
+     */
     public function agentConfigurations(): HasMany
     {
         return $this->hasMany(AgentConfiguration::class);
     }
 
+    /**
+     * @return HasOne<Order, $this>
+     */
     public function order(): HasOne
     {
         return $this->hasOne(Order::class);
     }
 
+    /**
+     * @return HasMany<AuditLog, $this>
+     */
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);

@@ -57,6 +57,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('disputes/{dispute}', [DisputeController::class, 'show'])
         ->name('disputes.show');
+    Route::get('disputes/{dispute}/evidence', [DisputeController::class, 'evidence'])
+        ->middleware('throttle:30,1')
+        ->name('disputes.evidence');
 
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
