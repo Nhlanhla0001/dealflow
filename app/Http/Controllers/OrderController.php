@@ -79,7 +79,7 @@ class OrderController extends Controller
         abort_unless($order->seller_id === $request->user()->id, 403);
 
         $validated = $request->validate([
-            'message' => ['required', 'string', 'max:2000'],
+            'progress_message' => ['required', 'string', 'max:2000'],
         ]);
 
         return DB::transaction(function () use ($order, $request, $validated): RedirectResponse {
@@ -89,7 +89,7 @@ class OrderController extends Controller
                 return $this->invalid('Progress can only be added while work is in progress.');
             }
 
-            $this->event($fresh, $request, 'progress', $validated['message']);
+            $this->event($fresh, $request, 'progress', $validated['progress_message']);
 
             return $this->success('Progress update added.');
         });
@@ -101,7 +101,7 @@ class OrderController extends Controller
         abort_unless($order->seller_id === $request->user()->id, 403);
 
         $validated = $request->validate([
-            'message' => ['required', 'string', 'max:3000'],
+            'delivery_message' => ['required', 'string', 'max:3000'],
             'delivery_url' => ['nullable', 'url', 'max:2048'],
         ]);
 
@@ -114,11 +114,11 @@ class OrderController extends Controller
 
             $fresh->update([
                 'status' => 'delivered',
-                'delivery_message' => $validated['message'],
+                'delivery_message' => $validated['delivery_message'],
                 'delivery_url' => $validated['delivery_url'] ?? null,
                 'delivered_at' => now(),
             ]);
-            $this->event($fresh, $request, 'delivered', $validated['message']);
+            $this->event($fresh, $request, 'delivered', $validated['delivery_message']);
 
             return $this->success('Delivery submitted. The buyer can now review it.');
         });
@@ -152,7 +152,7 @@ class OrderController extends Controller
         abort_unless($order->buyer_id === $request->user()->id, 403);
 
         $validated = $request->validate([
-            'message' => ['required', 'string', 'max:2000'],
+            'revision_message' => ['required', 'string', 'max:2000'],
         ]);
 
         return DB::transaction(function () use ($order, $request, $validated): RedirectResponse {
@@ -172,7 +172,7 @@ class OrderController extends Controller
                 'status' => 'revision_requested',
                 'revisions_used' => $fresh->revisions_used + 1,
             ]);
-            $this->event($fresh, $request, 'revision_requested', $validated['message']);
+            $this->event($fresh, $request, 'revision_requested', $validated['revision_message']);
 
             return $this->success('Revision requested.');
         });

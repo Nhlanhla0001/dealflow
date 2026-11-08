@@ -37,6 +37,7 @@ export default function Register({ passwordRules }: Props) {
                                     autoComplete="name"
                                     name="name"
                                     placeholder="Full name"
+                                    aria-invalid={Boolean(errors.name)}
                                 />
                                 <InputError
                                     message={errors.name}
@@ -54,6 +55,7 @@ export default function Register({ passwordRules }: Props) {
                                     autoComplete="email"
                                     name="email"
                                     placeholder="email@example.com"
+                                    aria-invalid={Boolean(errors.email)}
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -67,6 +69,7 @@ export default function Register({ passwordRules }: Props) {
                                     name="role"
                                     defaultValue="buyer"
                                     tabIndex={3}
+                                    aria-invalid={Boolean(errors.role)}
                                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                                 >
                                     <option value="buyer">
@@ -91,6 +94,7 @@ export default function Register({ passwordRules }: Props) {
                                     autoComplete="new-password"
                                     name="password"
                                     placeholder="Password"
+                                    aria-invalid={Boolean(errors.password)}
                                     passwordrules={passwordRules}
                                 />
                                 <InputError message={errors.password} />
@@ -107,6 +111,9 @@ export default function Register({ passwordRules }: Props) {
                                     autoComplete="new-password"
                                     name="password_confirmation"
                                     placeholder="Confirm password"
+                                    aria-invalid={Boolean(
+                                        errors.password_confirmation,
+                                    )}
                                     passwordrules={passwordRules}
                                 />
                                 <InputError

@@ -32,7 +32,7 @@ class OrderFulfilmentTest extends TestCase
 
         $this->actingAs($seller)
             ->post(route('orders.progress', $order), [
-                'message' => 'First draft is underway.',
+                'progress_message' => 'First draft is underway.',
             ])
             ->assertRedirect();
 
@@ -43,7 +43,7 @@ class OrderFulfilmentTest extends TestCase
 
         $this->actingAs($seller)
             ->post(route('orders.deliver', $order), [
-                'message' => 'The deliverables are ready.',
+                'delivery_message' => 'The deliverables are ready.',
                 'delivery_url' => 'https://example.com/delivery',
             ])
             ->assertRedirect();
@@ -65,12 +65,12 @@ class OrderFulfilmentTest extends TestCase
             ->post(route('orders.start', $order));
         $this->actingAs($seller)
             ->post(route('orders.deliver', $order), [
-                'message' => 'First delivery.',
+                'delivery_message' => 'First delivery.',
             ]);
 
         $this->actingAs($buyer)
             ->post(route('orders.revision', $order), [
-                'message' => 'Please adjust the hero section.',
+                'revision_message' => 'Please adjust the hero section.',
             ])
             ->assertRedirect();
 
@@ -80,7 +80,7 @@ class OrderFulfilmentTest extends TestCase
 
         $this->actingAs($seller)
             ->post(route('orders.deliver', $order), [
-                'message' => 'Revision complete.',
+                'delivery_message' => 'Revision complete.',
             ]);
 
         $this->actingAs($buyer)
@@ -98,14 +98,14 @@ class OrderFulfilmentTest extends TestCase
 
         $this->actingAs($seller)->post(route('orders.start', $order));
         $this->actingAs($seller)->post(route('orders.deliver', $order), [
-            'message' => 'Delivery.',
+            'delivery_message' => 'Delivery.',
         ]);
 
         $order->update(['revisions_used' => 2]);
 
         $this->actingAs($buyer)
             ->post(route('orders.revision', $order), [
-                'message' => 'One more change.',
+                'revision_message' => 'One more change.',
             ])
             ->assertRedirect();
 

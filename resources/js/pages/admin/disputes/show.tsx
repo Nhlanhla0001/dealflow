@@ -1,5 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Download, ExternalLink, ShieldAlert } from 'lucide-react';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,10 @@ export default function AdminDisputeShow({
 }: {
     dispute: DealDispute;
 }) {
+    const { errors, old } = usePage<{
+        errors: Record<string, string>;
+        old: Record<string, string>;
+    }>().props;
     const csrfToken =
         typeof document !== 'undefined'
             ? (document
@@ -166,7 +171,10 @@ export default function AdminDisputeShow({
                                     <select
                                         id="status"
                                         name="status"
-                                        defaultValue={dispute.status}
+                                        defaultValue={
+                                            old.status ?? dispute.status
+                                        }
+                                        aria-invalid={Boolean(errors.status)}
                                         className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
                                     >
                                         <option value="under_review">
@@ -179,6 +187,7 @@ export default function AdminDisputeShow({
                                             rejected
                                         </option>
                                     </select>
+                                    <InputError message={errors.status} />
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="resolution">
@@ -189,9 +198,17 @@ export default function AdminDisputeShow({
                                         name="resolution"
                                         required
                                         rows={5}
-                                        defaultValue={dispute.resolution ?? ''}
+                                        defaultValue={
+                                            old.resolution ??
+                                            dispute.resolution ??
+                                            ''
+                                        }
+                                        aria-invalid={Boolean(
+                                            errors.resolution,
+                                        )}
                                         placeholder="What was decided, and why?"
                                     />
+                                    <InputError message={errors.resolution} />
                                 </div>
                                 <Button type="submit" className="w-full">
                                     Save resolution

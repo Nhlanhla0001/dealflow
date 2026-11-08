@@ -37,6 +37,7 @@ export default function ConfirmPassword() {
                                 placeholder="Password"
                                 autoComplete="current-password"
                                 autoFocus
+                                aria-invalid={Boolean(errors.password)}
                             />
 
                             <InputError message={errors.password} />

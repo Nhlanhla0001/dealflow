@@ -103,6 +103,7 @@ export default function TransactionsCreate({
                                             placeholder="Business website build"
                                             required
                                             autoFocus
+                                            aria-invalid={Boolean(errors.title)}
                                         />
                                         <InputError message={errors.title} />
                                     </div>
@@ -117,6 +118,9 @@ export default function TransactionsCreate({
                                             defaultValue={prefill?.description}
                                             required
                                             rows={5}
+                                            aria-invalid={Boolean(
+                                                errors.description,
+                                            )}
                                             placeholder="A seven-page marketing site with a contact form, CMS, and launch support."
                                             className="flex min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40"
                                         />
@@ -139,6 +143,9 @@ export default function TransactionsCreate({
                                                     sellers[0]?.id ??
                                                     ''
                                                 }
+                                                aria-invalid={Boolean(
+                                                    errors.seller_id,
+                                                )}
                                                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                                             >
                                                 {sellers.map((seller) => (

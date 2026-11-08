@@ -39,6 +39,8 @@ import type { Auth, DealTransaction } from '@/types';
 
 type PageProps = {
     auth: Auth;
+    errors: Record<string, string>;
+    old: Record<string, string>;
 };
 
 function EmptyState({ children }: { children: React.ReactNode }) {
@@ -62,7 +64,7 @@ export default function TransactionsShow({
     };
     hasApproved: boolean;
 }) {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, errors, old } = usePage<PageProps>().props;
     const meta = stateMeta[transaction.state];
     const isBuyer = transaction.buyer_id === auth.user.id;
     const isSeller = transaction.seller_id === auth.user.id;
@@ -532,9 +534,16 @@ export default function TransactionsShow({
                                                         min="1"
                                                         step="0.01"
                                                         defaultValue={
+                                                            old.price ??
                                                             price / 100
                                                         }
+                                                        aria-invalid={Boolean(
+                                                            errors.price,
+                                                        )}
                                                         required
+                                                    />
+                                                    <InputError
+                                                        message={errors.price}
                                                     />
                                                 </div>
                                                 <div className="grid gap-2">
@@ -547,8 +556,19 @@ export default function TransactionsShow({
                                                         type="number"
                                                         min="1"
                                                         max="365"
-                                                        defaultValue={delivery}
+                                                        defaultValue={
+                                                            old.delivery_days ??
+                                                            delivery
+                                                        }
+                                                        aria-invalid={Boolean(
+                                                            errors.delivery_days,
+                                                        )}
                                                         required
+                                                    />
+                                                    <InputError
+                                                        message={
+                                                            errors.delivery_days
+                                                        }
                                                     />
                                                 </div>
                                             </div>
@@ -562,8 +582,17 @@ export default function TransactionsShow({
                                                     required
                                                     rows={3}
                                                     maxLength={500}
+                                                    defaultValue={
+                                                        old.reason ?? ''
+                                                    }
+                                                    aria-invalid={Boolean(
+                                                        errors.reason,
+                                                    )}
                                                     placeholder="Explain your counteroffer."
                                                     className="flex min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                                />
+                                                <InputError
+                                                    message={errors.reason}
                                                 />
                                             </div>
                                             <Button

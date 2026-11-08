@@ -160,15 +160,27 @@ export default function OrderShow({
                                                 value={csrfToken}
                                             />
                                             <div className="grid gap-2">
-                                                <Label htmlFor="progress">
+                                                <Label htmlFor="progress_message">
                                                     Progress update
                                                 </Label>
                                                 <Textarea
-                                                    id="progress"
-                                                    name="message"
+                                                    id="progress_message"
+                                                    name="progress_message"
                                                     required
                                                     rows={3}
+                                                    defaultValue={
+                                                        old.progress_message ??
+                                                        ''
+                                                    }
+                                                    aria-invalid={Boolean(
+                                                        errors.progress_message,
+                                                    )}
                                                     placeholder="What has been completed, and what is next?"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors.progress_message
+                                                    }
                                                 />
                                             </div>
                                             <Button
@@ -195,10 +207,22 @@ export default function OrderShow({
                                                 </Label>
                                                 <Textarea
                                                     id="delivery_message"
-                                                    name="message"
+                                                    name="delivery_message"
                                                     required
                                                     rows={4}
+                                                    defaultValue={
+                                                        old.delivery_message ??
+                                                        ''
+                                                    }
+                                                    aria-invalid={Boolean(
+                                                        errors.delivery_message,
+                                                    )}
                                                     placeholder="Describe the completed deliverables and where to find them."
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors.delivery_message
+                                                    }
                                                 />
                                             </div>
                                             <div className="grid gap-2">
@@ -209,7 +233,18 @@ export default function OrderShow({
                                                     id="delivery_url"
                                                     name="delivery_url"
                                                     type="url"
+                                                    defaultValue={
+                                                        old.delivery_url ?? ''
+                                                    }
+                                                    aria-invalid={Boolean(
+                                                        errors.delivery_url,
+                                                    )}
                                                     placeholder="https://example.com/delivery"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors.delivery_url
+                                                    }
                                                 />
                                             </div>
                                             <Button type="submit">
@@ -290,10 +325,21 @@ export default function OrderShow({
                                             </Label>
                                             <Textarea
                                                 id="revision_message"
-                                                name="message"
+                                                name="revision_message"
                                                 required
                                                 rows={3}
+                                                defaultValue={
+                                                    old.revision_message ?? ''
+                                                }
+                                                aria-invalid={Boolean(
+                                                    errors.revision_message,
+                                                )}
                                                 placeholder="What needs to change?"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors.revision_message
+                                                }
                                             />
                                         </div>
                                         <Button type="submit" variant="outline">

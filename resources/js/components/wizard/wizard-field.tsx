@@ -23,9 +23,16 @@ export function WizardField({
         <div className="grid gap-2">
             <label htmlFor={htmlFor} className="text-sm font-medium">
                 {label}
-                {required && (
-                    <span className="ml-1 text-destructive" aria-hidden>
-                        *
+                {required ? (
+                    <>
+                        <span className="ml-1 text-destructive" aria-hidden>
+                            *
+                        </span>
+                        <span className="sr-only"> (required)</span>
+                    </>
+                ) : (
+                    <span className="ml-1 text-xs font-normal text-muted-foreground">
+                        Optional
                     </span>
                 )}
             </label>
