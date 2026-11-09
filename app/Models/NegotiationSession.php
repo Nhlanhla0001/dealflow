@@ -65,4 +65,12 @@ class NegotiationSession extends Model
     {
         return $this->hasMany(AgentRun::class);
     }
+
+    /**
+     * @return HasMany<NegotiationDirective, $this>
+     */
+    public function directives(): HasMany
+    {
+        return $this->hasMany(NegotiationDirective::class, 'negotiation_session_id')->oldest('id');
+    }
 }

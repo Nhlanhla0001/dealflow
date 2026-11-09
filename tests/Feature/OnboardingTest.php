@@ -12,6 +12,33 @@ class OnboardingTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_a_new_onboarding_draft_starts_with_only_the_role_complete(): void
+    {
+        $user = User::factory()->create([
+            'onboarding_completed_at' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('onboarding.show'))
+            ->assertOk();
+
+        $draft = WizardDraft::query()->sole();
+
+        $this->assertSame(['role'], $draft->completed_steps);
+    }
+
+    public function test_inertia_shares_a_fresh_csrf_token(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (Assert $page) => $page->where(
+                'csrf_token',
+                csrf_token(),
+            ));
+    }
+
     public function test_a_new_user_is_sent_to_onboarding_and_can_finish_it(): void
     {
         $user = User::factory()->create([

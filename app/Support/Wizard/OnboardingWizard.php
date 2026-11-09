@@ -150,9 +150,9 @@ class OnboardingWizard implements WizardDefinition
             'role' => 'buyer',
             'headline' => null,
             'bio' => null,
-            'timezone' => 'UTC',
-            'notification_email' => true,
-            'notification_in_app' => true,
+            'timezone' => null,
+            'notification_email' => null,
+            'notification_in_app' => null,
         ];
     }
 

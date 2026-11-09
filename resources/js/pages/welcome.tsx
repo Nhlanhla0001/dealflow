@@ -48,11 +48,11 @@ const steps = [
     },
     {
         title: 'Agents negotiate',
-        detail: 'Real proposals, real counters, inside the limits.',
+        detail: 'Real proposals and counters. Each agent obeys only its own side’s limits; the buyer’s validator blocks any price above the budget.',
     },
     {
         title: 'Both humans approve',
-        detail: 'One rejection cancels the deal. No silent consent.',
+        detail: 'Agent acceptance is a proposal, not approval. Both people approve, and one rejection cancels the deal.',
     },
     {
         title: 'PayPal settles',
@@ -73,7 +73,10 @@ const tools = [
         'Gemini 3 Flash',
         'Buyer and seller proposals through the Laravel AI SDK.',
     ],
-    ['PayPal Orders API v2', 'Sandbox order creation and verified capture.'],
+    [
+        'PayPal Orders API v2',
+        'Sandbox order creation. A capture only counts once PayPal reports COMPLETED.',
+    ],
     [
         'PayPal webhooks',
         'Signature verification and idempotent event handling.',
@@ -82,8 +85,11 @@ const tools = [
         'Laravel 13 + Inertia 3',
         'Server-driven pages with React 19 on the client.',
     ],
-    ['SQLite', 'Demo data, approvals, payment events, and audit log.'],
-    ['Automated tests', 'Negotiation, approval, rejection, and payment paths.'],
+    ['PostgreSQL', 'Demo data, approvals, payment events, and audit log.'],
+    [
+        'Automated tests',
+        'Negotiation, constraint enforcement, approvals, rejection, messaging, and payment paths.',
+    ],
 ];
 
 type Props = {
@@ -111,9 +117,7 @@ export default function Welcome({
                             <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
                                 <AppLogoIcon className="size-5" />
                             </span>
-                            <span>
-                                DealFlow <span className="font-normal">AI</span>
-                            </span>
+                            <span>DealFlow</span>
                         </Link>
 
                         <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
@@ -190,11 +194,10 @@ export default function Welcome({
                             </h1>
 
                             <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground">
-                                DealFlow AI runs a real buyer-versus-seller
-                                agent negotiation inside the limits each side
-                                sets. Nothing is approved, and no money moves,
-                                until both humans say yes. PayPal settles the
-                                payment.
+                                DealFlow runs a real buyer-versus-seller agent
+                                negotiation inside the limits each side sets.
+                                Nothing is approved, and no money moves, until
+                                both humans say yes. PayPal settles the payment.
                             </p>
 
                             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -288,10 +291,12 @@ export default function Welcome({
                                         out.
                                     </h2>
                                     <p className="mt-4 text-base leading-7 text-muted-foreground">
-                                        Browse published services, see the
-                                        deliverables and delivery window, then
-                                        start a structured request. No ratings
-                                        theatre and no hidden placement.
+                                        Browse published services and see the
+                                        deliverables and delivery window before
+                                        starting a structured request. The
+                                        marketplace is where a deal begins; the
+                                        negotiation, approvals, and settlement
+                                        carry it.
                                     </p>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
@@ -578,7 +583,7 @@ export default function Welcome({
                                 <Check className="size-3" aria-hidden />
                             </span>
                             <span>
-                                DealFlow AI · Built for the PayPal AI Hackathon
+                                DealFlow · Built for the PayPal AI Hackathon
                             </span>
                         </div>
                         <div className="flex flex-wrap items-center gap-5">

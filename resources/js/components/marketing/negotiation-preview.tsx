@@ -20,7 +20,7 @@ const messages: Message[] = [
     {
         agent: 'Seller AI',
         price: '$580',
-        reason: 'Counter above the $450 private floor.',
+        reason: 'Counter above the buyer’s $500 budget. Each agent obeys only its own side’s limits.',
         tone: 'seller',
     },
     {
@@ -30,9 +30,9 @@ const messages: Message[] = [
         tone: 'buyer',
     },
     {
-        agent: 'Seller',
+        agent: 'Seller AI',
         price: '$500',
-        reason: 'Accepted. The floor is met.',
+        reason: 'Agent accepts at the budget cap. Human approval is still pending.',
         tone: 'seller',
     },
 ];
@@ -158,6 +158,10 @@ export function NegotiationPreview() {
                 </ol>
 
                 <div className="border-t border-border px-5 py-4">
+                    <p className="mb-3 text-xs leading-5 text-muted-foreground">
+                        Agent acceptance is a proposal. The approvals below are
+                        separate human actions.
+                    </p>
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">
                             Buyer approval
@@ -218,8 +222,10 @@ export function NegotiationPreview() {
 
             <p className="mt-3 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
                 <LockKeyhole className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-                The seller floor is never included in the buyer agent's context.
-                Switch to seller view to see what the buyer cannot.
+                The seller floor never enters the buyer agent's context, and
+                each agent answers to its own party's limits. The buyer's
+                validator rejects any price above the budget. Switch views to
+                compare.
             </p>
         </div>
     );

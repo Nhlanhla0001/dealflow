@@ -156,6 +156,22 @@ class Transaction extends Model
     }
 
     /**
+     * @return HasMany<Message, $this>
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class)->oldest('id');
+    }
+
+    /**
+     * @return HasMany<MessageRead, $this>
+     */
+    public function messageReads(): HasMany
+    {
+        return $this->hasMany(MessageRead::class);
+    }
+
+    /**
      * @param  Builder<Transaction>  $query
      * @return Builder<Transaction>
      */

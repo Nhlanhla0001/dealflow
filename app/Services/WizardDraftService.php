@@ -87,9 +87,9 @@ class WizardDraftService
                 'role' => $user->role->value,
                 'headline' => $user->headline,
                 'bio' => $user->bio,
-                'timezone' => $user->timezone ?? 'UTC',
-                'notification_email' => $user->notification_email,
-                'notification_in_app' => $user->notification_in_app,
+                'timezone' => null,
+                'notification_email' => null,
+                'notification_in_app' => null,
             ];
 
             $draft->update([

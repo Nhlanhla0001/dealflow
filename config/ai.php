@@ -42,6 +42,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Conversation Storage
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the database table names used by the AI
+    | conversation store. The defaults match the tables created by the
+    | package migration; override them only if you need custom names.
+    | (env keys are declared in .env / .env.example)
+    |
+    */
+
+    'conversations' => [
+        'tables' => [
+            'conversations' => 'agent_conversations',
+            'messages' => 'agent_conversation_messages',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | AI Providers
     |--------------------------------------------------------------------------
     |

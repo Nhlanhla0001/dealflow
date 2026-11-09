@@ -1,12 +1,12 @@
-# DealFlow AI
+# DealFlow
 
 **AI negotiates. Deterministic limits enforce. Humans approve. PayPal settles.**
 
-DealFlow AI is a negotiation and settlement workspace for freelance and agency deals. A buyer sets a budget and delivery window. A seller sets an opening offer and a private floor. Two AI agents negotiate inside those limits. Both humans approve the resulting agreement before PayPal checkout unlocks.
+DealFlow is a negotiation and settlement workspace for freelance and agency deals. A buyer sets a budget and delivery window. A seller sets an opening offer and a private floor. Two AI agents negotiate inside those limits. Both humans approve the resulting agreement before PayPal checkout unlocks.
 
 Built for the **PayPal AI Hackathon**.
 
-![DealFlow AI landing page](docs/screenshots/landing.png)
+![DealFlow landing page](docs/screenshots/landing.png)
 
 ## Demo video
 
@@ -14,7 +14,7 @@ Built for the **PayPal AI Hackathon**.
 
 ## Why it exists
 
-Most "AI negotiation" demos are a chat window with a script. DealFlow AI is built around the part that actually matters: **an agent can propose, but it cannot approve, reveal a private limit, or move money.**
+Most "AI negotiation" demos are a chat window with a script. DealFlow is built around the part that actually matters: **an agent can propose, but it cannot approve, reveal a private limit, or move money.**
 
 - Real Gemini agents propose and counter.
 - Deterministic validators enforce the buyer budget and seller floor.
@@ -92,11 +92,12 @@ Set the database connection in `.env`:
 DB_CONNECTION=sqlite
 ```
 
-Install, migrate, seed, build, and serve:
+Install, migrate, seed, link storage, build, and serve:
 
 ```bash
 npm install
 php artisan migrate --seed
+php artisan storage:link
 npm run build
 php artisan serve
 ```
@@ -127,6 +128,7 @@ composer install --no-dev --optimize-autoloader
 npm ci
 npm run build
 php artisan migrate --force --seed
+php artisan storage:link --force
 php artisan optimize
 ```
 
@@ -144,7 +146,7 @@ Dispute evidence uploads need a writable PHP upload directory and limits above t
 
 `composer ci:check` runs the formatter, TypeScript, Pint, PHPStan level 7, and the full PHPUnit suite. `composer test:pgsql` runs the same suite on PostgreSQL. CI runs both lanes.
 
-The committed `AGENTS.md`, `.ai/rules`, `opencode.json`, and `.opencode/plugins/skill-router` enforce the agent workflow. The skills themselves are installed in the local OpenCode skill sources; a fresh clone needs the Impeccable, Corey Haines, Laravel, and Superpowers skill packs installed before every gate can pass.
+The committed `AGENTS.md`, `.ai/rules`, `opencode.json`, and `.opencode/plugins/skill-router` document and enforce the AI-assisted development workflow this project used. They are not required to build or run DealFlow; `composer ci:check` runs with or without any local agent skills installed.
 
 ### PostgreSQL verification
 
@@ -167,7 +169,7 @@ This is the same suite CI runs in the `postgres` job. The application is not con
 | Second seller | `seller2@dealflow.test` | `password` |
 | Admin         | `admin@dealflow.test`   | `password` |
 
-The seed creates four demo deals: a paid deal with a captured PayPal sandbox payment, an approved deal ready for checkout, and two deals awaiting approvals. It also creates the negotiation transcripts and the notification inbox.
+The seed creates four demo deals: a paid example with a seeded sandbox payment record, an approved deal ready for checkout, and two deals awaiting approvals. It also creates the negotiation transcripts and the notification inbox. Seeded payment identifiers are demo data; the live PayPal path is exercised when you configure sandbox credentials and run the checkout.
 
 ### PayPal sandbox
 
@@ -218,6 +220,14 @@ curl -s -X POST https://api-m.sandbox.paypal.com/v1/notifications/webhooks \
 Copy the returned `id` into `PAYPAL_WEBHOOK_ID` and run `php artisan config:clear`.
 
 PayPal's webhook simulator can confirm the path without a real payment. A simulated `PAYMENT.CAPTURE.COMPLETED` event is written to `payment_events` with a `processed_at` timestamp when signature verification succeeds.
+
+### Running without API keys
+
+The seeded demo works without `GOOGLE_API_KEY` or PayPal credentials:
+
+- **Browsing, negotiation transcripts, and approvals** work from seeded data. **Messaging and uploads** work once you sign in as a seeded user and use a transaction.
+- **Live negotiation** calls Gemini when `GOOGLE_API_KEY` is set. Without a key the agents return no proposal and the coordinator falls back to deterministic proposals that still respect the budget and floor, so the flow can be demonstrated end to end.
+- **Checkout** needs PayPal sandbox credentials. Without them the checkout action reports that PayPal could not create the checkout; it never shows a false success.
 
 ## How the trust model works
 

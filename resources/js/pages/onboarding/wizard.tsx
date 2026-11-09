@@ -44,12 +44,12 @@ const timezones = [
 const roleOptions = [
     {
         value: 'buyer',
-        label: 'Buyer',
+        label: 'Hire someone',
         description: 'Discover services and request work.',
     },
     {
         value: 'seller',
-        label: 'Seller',
+        label: 'Find work',
         description: 'Publish services and deliver work.',
     },
     {
@@ -181,7 +181,7 @@ export default function OnboardingWizard({ draft, dashboardUrl }: Props) {
                             <span className="flex size-7 items-center justify-center rounded-md bg-foreground text-background">
                                 <Check className="size-3.5" aria-hidden />
                             </span>
-                            DealFlow AI
+                            DealFlow
                         </Link>
                         <Link
                             href={dashboardUrl}
@@ -347,7 +347,7 @@ export default function OnboardingWizard({ draft, dashboardUrl }: Props) {
                                             id="timezone"
                                             value={asString(
                                                 wizard.data.timezone,
-                                                'UTC',
+                                                '',
                                             )}
                                             onChange={(event) =>
                                                 wizard.updateField(
@@ -357,6 +357,9 @@ export default function OnboardingWizard({ draft, dashboardUrl }: Props) {
                                             }
                                             className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                                         >
+                                            <option value="" disabled>
+                                                Select a timezone
+                                            </option>
                                             {timezones.map((timezone) => (
                                                 <option
                                                     key={timezone}

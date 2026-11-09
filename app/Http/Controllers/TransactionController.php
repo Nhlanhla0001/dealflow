@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Enums\UserRole;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Models\AgentConfiguration;
+use App\Models\Message;
 use App\Models\PaymentOrder;
 use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\AuditService;
+use App\Services\MessageThread;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,7 +19,10 @@ use Inertia\Response;
 
 class TransactionController extends Controller
 {
-    public function __construct(private readonly AuditService $audit) {}
+    public function __construct(
+        private readonly AuditService $audit,
+        private readonly MessageThread $messages,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -113,6 +118,8 @@ class TransactionController extends Controller
             'agentConfigurations',
             'paymentOrders',
             'order',
+            'messages.user:id,name',
+            'messages.attachments',
             'auditLogs' => fn ($query) => $query->latest()->limit(20),
         ])->hidePrivateFieldsFrom($request->user());
 
@@ -141,8 +148,14 @@ class TransactionController extends Controller
 
         $agreement = $transaction->latestAgreement;
 
+        $unreadMessages = $this->messages->unreadCount($transaction, $user);
+
         return Inertia::render('transactions/show', [
             'transaction' => $transaction,
+            'messages' => $transaction->messages
+                ->map(fn (Message $message): array => $message->toPayload())
+                ->values(),
+            'unreadMessages' => $unreadMessages,
             'can' => [
                 'update' => $request->user()->can('update', $transaction),
                 'delete' => $request->user()->can('delete', $transaction),

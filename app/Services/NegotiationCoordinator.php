@@ -8,9 +8,11 @@ use App\Enums\NegotiationStatus;
 use App\Enums\TransactionState;
 use App\Models\AgentConfiguration;
 use App\Models\AgentRun;
+use App\Models\NegotiationDirective;
 use App\Models\NegotiationSession;
 use App\Models\Transaction;
 use App\Notifications\TermsReadyForApproval;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use RuntimeException;
 
@@ -274,7 +276,7 @@ class NegotiationCoordinator
                 return $this->fallbackBuyerProposal($buyerMax, $sellerOffer, $deliveryWindow);
             }
 
-            $proposal = $this->buyerAgent->propose($context);
+            $proposal = $this->buyerAgent->propose($this->withDirectives($context, $session, $transaction->buyer_id));
 
             if ($this->isValidProposal($proposal)) {
                 $action = (string) $proposal['action'];
@@ -355,7 +357,7 @@ class NegotiationCoordinator
                 return $this->fallbackSellerProposal($sellerFloor, $buyerPrice, $buyerDelivery);
             }
 
-            $proposal = $this->sellerAgent->respond($context);
+            $proposal = $this->sellerAgent->respond($this->withDirectives($context, $session, $transaction->seller_id));
 
             if ($this->isValidProposal($proposal)) {
                 $action = (string) $proposal['action'];
@@ -446,7 +448,7 @@ class NegotiationCoordinator
                 ];
             }
 
-            $proposal = $this->buyerAgent->propose($context);
+            $proposal = $this->buyerAgent->propose($this->withDirectives($context, $session, $transaction->buyer_id));
 
             if ($this->isValidProposal($proposal)) {
                 $action = (string) $proposal['action'];
@@ -732,6 +734,48 @@ class NegotiationCoordinator
     private function estimateTokens(array $data): int
     {
         return max(1, (int) ceil(strlen(json_encode($data, JSON_THROW_ON_ERROR)) / 4));
+    }
+
+    /**
+     * Return the unapplied directives for one party and mark them as applied,
+     * so each note reaches only that party's agent exactly once.
+     */
+    public function claimDirectives(NegotiationSession $session, int $userId): string
+    {
+        return DB::transaction(function () use ($session, $userId): string {
+            $directives = $session->directives()
+                ->where('user_id', $userId)
+                ->whereNull('applied_at')
+                ->lockForUpdate()
+                ->get();
+
+            if ($directives->isEmpty()) {
+                return '';
+            }
+
+            $session->directives()
+                ->whereKey($directives->modelKeys())
+                ->update(['applied_at' => now()]);
+
+            return $directives
+                ->map(fn (NegotiationDirective $directive): string => '- '.$directive->body)
+                ->implode("\n");
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private function withDirectives(array $context, NegotiationSession $session, int $userId): array
+    {
+        $directives = $this->claimDirectives($session, $userId);
+
+        if ($directives === '') {
+            return $context;
+        }
+
+        return [...$context, 'directives' => $directives];
     }
 
     private function redactFloor(string $reason, int $floorMinor): string

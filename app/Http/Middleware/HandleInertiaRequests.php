@@ -35,11 +35,16 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'csrf_token' => fn (): string => $request->session()->token(),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user === null
+                    ? null
+                    : [...$user->toArray(), 'avatar_url' => $user->avatar_url],
             ],
             'old' => fn (): array => $request->session()->getOldInput(),
             'unreadNotifications' => fn (): int => $request->user()?->unreadNotifications()->count() ?? 0,

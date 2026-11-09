@@ -4,13 +4,16 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AgentConfigurationController;
 use App\Http\Controllers\AgreementApprovalController;
 use App\Http\Controllers\AiUsageController;
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\BuyerRequestController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisputeController;
 use App\Http\Controllers\ManualNegotiationController;
 use App\Http\Controllers\MarketplaceController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NegotiationController;
+use App\Http\Controllers\NegotiationDirectiveController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OnboardingController;
@@ -32,6 +35,7 @@ Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::middleware('auth')->group(function () {
     Route::get('onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
+    Route::get('attachments/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
 
     Route::patch('wizard-drafts/{draft}', [WizardDraftController::class, 'update'])
         ->middleware('throttle:60,1')
@@ -50,6 +54,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('attachments', [AttachmentController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('attachments.store');
     Route::get('ai/usage', [AiUsageController::class, 'index'])->name('ai.usage');
     Route::post('ai/credits', [AiUsageController::class, 'store'])
         ->middleware('throttle:10,1')
@@ -84,6 +91,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('transactions/{transaction}/manual-accept', [ManualNegotiationController::class, 'accept'])
         ->middleware('throttle:30,1')
         ->name('transactions.manual-accept');
+
+    Route::get('transactions/{transaction}/messages', [MessageController::class, 'index'])
+        ->name('transactions.messages.index');
+    Route::post('transactions/{transaction}/messages', [MessageController::class, 'store'])
+        ->middleware('throttle:30,1')
+        ->name('transactions.messages.store');
+
+    Route::post('transactions/{transaction}/directives', [NegotiationDirectiveController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('transactions.directives.store');
     Route::post('agreements/{agreement}/approve', [AgreementApprovalController::class, 'store'])
         ->name('agreements.approve');
     Route::post('agreements/{agreement}/reject', [AgreementApprovalController::class, 'reject'])

@@ -81,10 +81,10 @@ class SellerListingWizard implements WizardDefinition
             new WizardStep(
                 key: 'media',
                 label: 'Proof and media',
-                description: 'Add up to three image URLs and supporting information.',
+                description: 'Add up to six images and supporting information.',
                 rules: [
-                    'image_urls' => ['nullable', 'array', 'max:3'],
-                    'image_urls.*' => ['nullable', 'url', 'max:2048'],
+                    'image_urls' => ['nullable', 'array', 'max:6'],
+                    'image_urls.*' => ['nullable', 'string', 'max:2048', 'regex:#^(https?://\S+|/storage/\S+)$#'],
                     'supporting_info' => ['nullable', 'string', 'max:3000'],
                 ],
             ),

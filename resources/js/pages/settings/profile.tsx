@@ -1,12 +1,14 @@
-import { Form, Head, usePage } from '@inertiajs/react';
-import { Link } from '@inertiajs/react';
+import { Form, Head, Link, router, usePage } from '@inertiajs/react';
+import { useRef, useState } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { uploadAttachment } from '@/lib/attachments';
 import { edit } from '@/routes/profile';
 import type { Auth } from '@/types';
 import { send } from '@/routes/verification';
@@ -23,6 +25,29 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<PageProps>().props;
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
+    const [avatarError, setAvatarError] = useState<string | null>(null);
+    const avatarInput = useRef<HTMLInputElement>(null);
+
+    const uploadAvatar = async (file: File) => {
+        setUploadingAvatar(true);
+        setAvatarError(null);
+
+        try {
+            await uploadAttachment(file, 'avatar');
+            router.reload({ only: ['auth'] });
+        } catch (error) {
+            setAvatarError(
+                error instanceof Error ? error.message : 'Upload failed.',
+            );
+        } finally {
+            setUploadingAvatar(false);
+
+            if (avatarInput.current) {
+                avatarInput.current.value = '';
+            }
+        }
+    };
 
     return (
         <>
@@ -34,8 +59,56 @@ export default function Profile({
                 <Heading
                     variant="small"
                     title="Profile"
-                    description="Update your name and email address"
+                    description="Update your name, photo, and email address"
                 />
+
+                <div className="flex flex-wrap items-center gap-4">
+                    <Avatar className="size-16 overflow-hidden rounded-full">
+                        <AvatarImage
+                            src={auth.user.avatar_url ?? undefined}
+                            alt={auth.user.name}
+                        />
+                        <AvatarFallback className="rounded-full bg-neutral-200 text-base text-black dark:bg-neutral-700 dark:text-white">
+                            {auth.user.name.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
+
+                    <div className="space-y-2">
+                        <input
+                            ref={avatarInput}
+                            type="file"
+                            className="sr-only"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={(event) => {
+                                const file = event.target.files?.[0];
+
+                                if (file) {
+                                    void uploadAvatar(file);
+                                }
+                            }}
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => avatarInput.current?.click()}
+                            disabled={uploadingAvatar}
+                        >
+                            {uploadingAvatar ? 'Uploading…' : 'Change photo'}
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                            JPG, PNG, or WebP up to 10 MB.
+                        </p>
+                        {avatarError !== null && (
+                            <p
+                                className="text-sm text-destructive"
+                                role="alert"
+                            >
+                                {avatarError}
+                            </p>
+                        )}
+                    </div>
+                </div>
 
                 <Form
                     {...ProfileController.update.form()}

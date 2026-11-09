@@ -7,8 +7,10 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -35,6 +37,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property bool $notification_in_app
  * @property Carbon|null $onboarding_completed_at
  * @property Carbon|null $updated_at
+ * @property-read string|null $avatar_url
  */
 #[Fillable([
     'name',
@@ -53,6 +56,28 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /**
+     * @return MorphMany<Attachment, $this>
+     */
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    /**
+     * @return Attribute<string|null, never>
+     */
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::get(
+            fn (): ?string => $this->attachments()
+                ->where('collection', 'avatar')
+                ->latest('id')
+                ->first()
+                ?->url(),
+        );
+    }
 
     /**
      * Get the attributes that should be cast.
