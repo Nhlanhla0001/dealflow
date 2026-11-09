@@ -62,26 +62,26 @@ export default function Register({ passwordRules }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="role">
-                                    How will you use DealFlow?
+                                    What are you here to do?
                                 </Label>
                                 <select
                                     id="role"
                                     name="role"
-                                    defaultValue="buyer"
+                                    defaultValue=""
+                                    required
                                     tabIndex={3}
                                     aria-invalid={Boolean(errors.role)}
                                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                                 >
-                                    <option value="buyer">
-                                        I want to buy services
+                                    <option value="" disabled>
+                                        Choose one
                                     </option>
-                                    <option value="seller">
-                                        I want to sell services
-                                    </option>
-                                    <option value="both">
-                                        I want to buy and sell
-                                    </option>
+                                    <option value="buyer">Hire someone</option>
+                                    <option value="seller">Find work</option>
                                 </select>
+                                <p className="text-xs text-muted-foreground">
+                                    You can add the other side later.
+                                </p>
                                 <InputError message={errors.role} />
                             </div>
 

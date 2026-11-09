@@ -29,6 +29,7 @@ class RegistrationTest extends TestCase
         $response = $this->post(route('register.store'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'role' => 'buyer',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
@@ -39,6 +40,20 @@ class RegistrationTest extends TestCase
             'email' => 'test@example.com',
             'role' => 'buyer',
         ]);
+    }
+
+    public function test_registration_requires_a_role_choice()
+    {
+        $response = $this->from(route('register'))->post(route('register.store'), [
+            'name' => 'No Role',
+            'email' => 'norole@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('role');
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'norole@example.com']);
     }
 
     public function test_new_users_can_register_as_a_seller()

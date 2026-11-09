@@ -6,6 +6,7 @@ import {
     CheckCircle2,
     CircleDollarSign,
     FileText,
+    Handshake,
     MessageSquare,
     ShieldCheck,
 } from 'lucide-react';
@@ -141,6 +142,11 @@ export default function TransactionsShow({
                     <div>
                         <div className="flex flex-wrap items-center gap-2">
                             <Badge variant={meta.variant}>{meta.label}</Badge>
+                            <Badge variant="outline">
+                                {transaction.negotiation_mode === 'ai'
+                                    ? 'AI agents'
+                                    : 'Manual'}
+                            </Badge>
                             <span className="text-xs text-muted-foreground">
                                 Transaction #{transaction.id}
                             </span>
@@ -935,69 +941,93 @@ export default function TransactionsShow({
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Bot className="size-4" />
-                                    AI agents
-                                </CardTitle>
-                                <CardDescription>
-                                    Each side configures its own agent and
-                                    private limits.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4 text-sm">
-                                <div className="flex items-center justify-between gap-3">
-                                    <span className="text-muted-foreground">
-                                        Buyer agent
-                                    </span>
-                                    <span className="font-medium">
-                                        {buyerAgent
-                                            ? `${buyerAgent.provider} · ${buyerAgent.model}`
-                                            : 'Not configured'}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between gap-3">
-                                    <span className="text-muted-foreground">
-                                        Seller agent
-                                    </span>
-                                    <span className="font-medium">
-                                        {sellerAgent
-                                            ? `${sellerAgent.provider} · ${sellerAgent.model}`
-                                            : 'Not configured'}
-                                    </span>
-                                </div>
-
-                                {myAgent ? (
-                                    <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs leading-5 text-muted-foreground">
-                                        Your agent is {myAgent.status} with{' '}
-                                        {myAgent.max_turns} turns and{' '}
-                                        {formatMoney(
-                                            myAgent.spending_limit_minor,
-                                            'USD',
-                                        )}{' '}
-                                        of AI budget.
+                        {transaction.negotiation_mode === 'ai' ? (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Bot className="size-4" />
+                                        AI agents
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Each side configures its own agent and
+                                        private limits.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4 text-sm">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <span className="text-muted-foreground">
+                                            Buyer agent
+                                        </span>
+                                        <span className="font-medium">
+                                            {buyerAgent
+                                                ? `${buyerAgent.provider} · ${buyerAgent.model}`
+                                                : 'Not configured'}
+                                        </span>
                                     </div>
-                                ) : (
-                                    <Button asChild className="w-full">
-                                        <Link
-                                            href={`/transactions/${transaction.id}/agent`}
-                                        >
-                                            <Bot className="size-4" />
-                                            Configure{' '}
-                                            {isBuyer ? 'buyer' : 'seller'} agent
-                                        </Link>
-                                    </Button>
-                                )}
-                            </CardContent>
-                        </Card>
+                                    <div className="flex items-center justify-between gap-3">
+                                        <span className="text-muted-foreground">
+                                            Seller agent
+                                        </span>
+                                        <span className="font-medium">
+                                            {sellerAgent
+                                                ? `${sellerAgent.provider} · ${sellerAgent.model}`
+                                                : 'Not configured'}
+                                        </span>
+                                    </div>
 
-                        <AgentDirectivesCard
-                            transactionId={transaction.id}
-                            hasSession={
-                                transaction.negotiation_session !== null
-                            }
-                        />
+                                    {myAgent ? (
+                                        <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs leading-5 text-muted-foreground">
+                                            Your agent is {myAgent.status} with{' '}
+                                            {myAgent.max_turns} turns and{' '}
+                                            {formatMoney(
+                                                myAgent.spending_limit_minor,
+                                                'USD',
+                                            )}{' '}
+                                            of AI budget.
+                                        </div>
+                                    ) : (
+                                        <Button asChild className="w-full">
+                                            <Link
+                                                href={`/transactions/${transaction.id}/agent`}
+                                            >
+                                                <Bot className="size-4" />
+                                                Configure{' '}
+                                                {isBuyer
+                                                    ? 'buyer'
+                                                    : 'seller'}{' '}
+                                                agent
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Handshake className="size-4" />
+                                        Manual negotiation
+                                    </CardTitle>
+                                    <CardDescription>
+                                        You and the other party exchange offers.
+                                        No agents run on this deal.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="text-sm text-muted-foreground">
+                                    Send a counteroffer or accept the latest
+                                    offer in the Negotiation section.
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {transaction.negotiation_mode === 'ai' && (
+                            <AgentDirectivesCard
+                                transactionId={transaction.id}
+                                hasSession={
+                                    transaction.negotiation_session !== null
+                                }
+                            />
+                        )}
 
                         <Card>
                             <CardHeader>

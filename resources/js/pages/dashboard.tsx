@@ -121,7 +121,7 @@ export default function Dashboard({
                             Deal room
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                            AI agents negotiate inside your limits. You approve
+                            AI agents negotiate when you delegate. You approve
                             the terms. PayPal settles the payment.
                         </p>
                     </div>

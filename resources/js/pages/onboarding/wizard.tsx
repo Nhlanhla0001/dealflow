@@ -44,12 +44,12 @@ const timezones = [
 const roleOptions = [
     {
         value: 'buyer',
-        label: 'Buyer',
+        label: 'Hire someone',
         description: 'Discover services and request work.',
     },
     {
         value: 'seller',
-        label: 'Seller',
+        label: 'Find work',
         description: 'Publish services and deliver work.',
     },
     {
@@ -231,42 +231,48 @@ export default function OnboardingWizard({ draft, dashboardUrl }: Props) {
                         >
                             {wizard.currentStep === 'role' && (
                                 <div className="space-y-3">
-                                    {roleOptions.map((option) => (
-                                        <label
-                                            key={option.value}
-                                            className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${
-                                                wizard.data.role ===
-                                                option.value
-                                                    ? 'border-foreground bg-muted/40'
-                                                    : 'border-border hover:bg-muted/30'
-                                            }`}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name="role"
-                                                value={option.value}
-                                                checked={
+                                    {roleOptions
+                                        .filter(
+                                            (option) =>
+                                                option.value !== 'both' ||
+                                                wizard.data.role === 'both',
+                                        )
+                                        .map((option) => (
+                                            <label
+                                                key={option.value}
+                                                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${
                                                     wizard.data.role ===
                                                     option.value
-                                                }
-                                                onChange={() =>
-                                                    wizard.updateField(
-                                                        'role',
-                                                        option.value,
-                                                    )
-                                                }
-                                                className="mt-0.5 size-4 accent-emerald-700"
-                                            />
-                                            <span>
-                                                <span className="block text-sm font-medium">
-                                                    {option.label}
+                                                        ? 'border-foreground bg-muted/40'
+                                                        : 'border-border hover:bg-muted/30'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="role"
+                                                    value={option.value}
+                                                    checked={
+                                                        wizard.data.role ===
+                                                        option.value
+                                                    }
+                                                    onChange={() =>
+                                                        wizard.updateField(
+                                                            'role',
+                                                            option.value,
+                                                        )
+                                                    }
+                                                    className="mt-0.5 size-4 accent-emerald-700"
+                                                />
+                                                <span>
+                                                    <span className="block text-sm font-medium">
+                                                        {option.label}
+                                                    </span>
+                                                    <span className="mt-1 block text-sm text-muted-foreground">
+                                                        {option.description}
+                                                    </span>
                                                 </span>
-                                                <span className="mt-1 block text-sm text-muted-foreground">
-                                                    {option.description}
-                                                </span>
-                                            </span>
-                                        </label>
-                                    ))}
+                                            </label>
+                                        ))}
                                     <InputError
                                         message={
                                             Array.isArray(wizard.errors.role)
