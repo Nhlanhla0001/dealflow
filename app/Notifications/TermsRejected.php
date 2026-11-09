@@ -23,7 +23,7 @@ class TermsRejected extends Notification
         $transaction = $this->agreement->transaction;
 
         return (new MailMessage)
-            ->subject('DealFlow AI — '.$this->role().' rejected the terms')
+            ->subject('DealFlow — '.$this->role().' rejected the terms')
             ->greeting('The deal was cancelled')
             ->line("{$this->role()} rejected the agreement for \"{$transaction->title}\".")
             ->line('No payment will be created for this transaction.')

@@ -18,7 +18,7 @@ export default function MarketplaceSeller({ seller, services }: Props) {
             <Head title={seller.name}>
                 <meta
                     name="description"
-                    content={`Services published by ${seller.name} on DealFlow AI.`}
+                    content={`Services published by ${seller.name} on DealFlow.`}
                 />
                 <link rel="canonical" href={`/sellers/${seller.id}`} />
             </Head>

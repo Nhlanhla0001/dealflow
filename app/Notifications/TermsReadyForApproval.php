@@ -19,7 +19,7 @@ class TermsReadyForApproval extends Notification
         $transaction = $this->agreement->transaction;
 
         return (new MailMessage)
-            ->subject('DealFlow AI — terms ready for your approval')
+            ->subject('DealFlow — terms ready for your approval')
             ->greeting('Terms ready for review')
             ->line("The AI negotiation for \"{$transaction->title}\" produced terms ready for your approval.")
             ->line('Price: '.$this->price().' '.$this->agreement->currency)

@@ -1,4 +1,4 @@
-# Mandatory Skill Routing (DealFlow AI)
+# Mandatory Skill Routing (DealFlow)
 
 This section is an operating contract, not advice. Installing a skill is not using it. Every task follows this sequence, including "small" ones.
 

@@ -17,7 +17,7 @@ class BuyerRequestReceived extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('DealFlow AI — new buyer request')
+            ->subject('DealFlow — new buyer request')
             ->greeting('New request for your service')
             ->line("A buyer created a request for \"{$this->transaction->title}\".")
             ->line('Review the request, configure your agent, and respond with an offer.')

@@ -23,7 +23,7 @@ class CounterpartyApprovedTerms extends Notification
         $transaction = $this->agreement->transaction;
 
         return (new MailMessage)
-            ->subject('DealFlow AI — '.$this->role().' approved the terms')
+            ->subject('DealFlow — '.$this->role().' approved the terms')
             ->greeting('Your approval is still needed')
             ->line("{$this->role()} approved the agreement for \"{$transaction->title}\".")
             ->line('Price: '.$this->price().' '.$this->agreement->currency)

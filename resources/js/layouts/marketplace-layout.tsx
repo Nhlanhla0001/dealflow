@@ -22,9 +22,7 @@ export function MarketplaceLayout({ children }: { children: React.ReactNode }) {
                         <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
                             <AppLogoIcon className="size-5" />
                         </span>
-                        <span>
-                            DealFlow <span className="font-normal">AI</span>
-                        </span>
+                        <span>DealFlow</span>
                     </Link>
 
                     <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
@@ -95,7 +93,7 @@ export function MarketplaceLayout({ children }: { children: React.ReactNode }) {
             <footer className="border-t border-border">
                 <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
                     <p>
-                        DealFlow AI · Services, structured negotiation, PayPal
+                        DealFlow · Services, structured negotiation, PayPal
                         settlement
                     </p>
                     <div className="flex flex-wrap items-center gap-5">

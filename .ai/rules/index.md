@@ -1,4 +1,4 @@
-# DealFlow AI Rule Index
+# DealFlow Rule Index
 
 Read this file before entering plan mode or editing any file. Then read every rule below whose globs match the path(s) in scope. Also run `grep -rin '<keyword>' .ai/rules` to catch conventions a path match alone misses.
 

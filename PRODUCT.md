@@ -1,8 +1,8 @@
-# DealFlow AI — Product Context
+# DealFlow — Product Context
 
 ## What it is
 
-DealFlow AI is a negotiation and settlement workspace for freelance and agency deals. A buyer sets a budget and delivery window, a seller sets an opening offer and a private floor, and two AI agents negotiate the terms. Both humans approve the resulting agreement before PayPal checkout unlocks.
+DealFlow is a negotiation and settlement workspace for freelance and agency deals. A buyer sets a budget and delivery window, a seller sets an opening offer and a private floor, and two AI agents negotiate the terms. Both humans approve the resulting agreement before PayPal checkout unlocks.
 
 ## Who it is for
 

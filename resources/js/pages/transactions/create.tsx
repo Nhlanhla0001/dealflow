@@ -41,7 +41,7 @@ export default function TransactionsCreate({
             <div className="flex flex-1 flex-col gap-6 p-4">
                 <div>
                     <p className="text-xs font-medium tracking-[0.22em] text-muted-foreground uppercase">
-                        DealFlow AI
+                        DealFlow
                     </p>
                     <h1 className="mt-2 text-2xl font-semibold tracking-tight">
                         New transaction
