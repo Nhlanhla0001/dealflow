@@ -3,10 +3,11 @@
     "instructions": [".ai/rules/index.md"],
     "plugins": ["./.opencode/plugins/skill-router"],
     "mcp": {
-        "laravel-boost": {
-            "type": "local",
-            "enabled": true,
-            "command": ["php", "artisan", "boost:mcp"]
+        "servers": {
+            "laravel-boost": {
+                "type": "local",
+                "command": ["php", "artisan", "boost:mcp"]
+            }
         }
     }
 }

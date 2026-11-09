@@ -13,12 +13,22 @@
 
 import { spawn } from 'node:child_process';
 import { appendFileSync, existsSync } from 'node:fs';
+import os from 'node:os';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const DEFAULT_BIN =
-    'C:\\Users\\Nhlan\\AppData\\Roaming\\Composer\\vendor\\bin\\laravel-lsp';
+// Composer's global bin directory, resolved per user so the plugin works on
+// any machine. Override with LARAVEL_LSP_BIN when the binary lives elsewhere.
+const DEFAULT_BIN = process.env.LARAVEL_LSP_BIN
+    ? process.env.LARAVEL_LSP_BIN
+    : path.join(
+          process.env.APPDATA ?? path.join(os.homedir(), 'AppData', 'Roaming'),
+          'Composer',
+          'vendor',
+          'bin',
+          'laravel-lsp',
+      );
 const START_TIMEOUT_MS = 45_000;
 const REQUEST_TIMEOUT_MS = 20_000;
 const DIAGNOSTICS_TIMEOUT_MS = 30_000;
@@ -42,6 +52,69 @@ function debugLog(message) {
     } catch {
         // Debug logging must never break the plugin.
     }
+}
+
+/**
+ * Parse a VS Code settings file. Real settings files are JSONC, so strip
+ * full-line comments, block comments, and trailing commas before parsing.
+ * Unparseable files yield `{}` instead of failing the plugin.
+ */
+function parseSettings(raw) {
+    const cleaned = raw
+        .replace(/^\s*\/\/.*$/gm, '')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/,(\s*[}\]])/g, '$1');
+
+    return JSON.parse(cleaned);
+}
+
+async function readSettingsFile(file) {
+    try {
+        return parseSettings(await readFile(file, 'utf8'));
+    } catch {
+        return {};
+    }
+}
+
+/**
+ * Map `Laravel.<feature>.<capability>` settings to the flat camelCase
+ * `initializationOptions` keys the server gates on, mirroring what the VS
+ * Code extension sends (e.g. `Laravel.env.diagnostics` -> `envDiagnostics`).
+ *
+ * Reads VS Code's user settings first, then the project's
+ * `.vscode/settings.json` (which wins), matching VS Code's own scope order.
+ * Missing or invalid files contribute nothing, preserving server defaults.
+ */
+export async function readInitializationOptions(root) {
+    const settings = {};
+
+    if (process.env.APPDATA) {
+        Object.assign(
+            settings,
+            await readSettingsFile(
+                path.join(process.env.APPDATA, 'Code', 'User', 'settings.json'),
+            ),
+        );
+    }
+
+    Object.assign(
+        settings,
+        await readSettingsFile(path.join(root, '.vscode', 'settings.json')),
+    );
+
+    const options = {};
+
+    for (const [key, value] of Object.entries(settings)) {
+        const match = /^Laravel\.(\w+)\.(\w+)$/.exec(key);
+
+        if (match !== null) {
+            const capability =
+                match[2].charAt(0).toUpperCase() + match[2].slice(1);
+            options[`${match[1]}${capability}`] = value;
+        }
+    }
+
+    return options;
 }
 
 export function createLaravelLsp(root) {
@@ -133,6 +206,9 @@ class LaravelLsp {
                 workspaceFolders: [
                     { uri, name: path.basename(this.root) || 'project' },
                 ],
+                initializationOptions: await readInitializationOptions(
+                    this.root,
+                ),
                 capabilities: {
                     textDocument: {
                         publishDiagnostics: {},
