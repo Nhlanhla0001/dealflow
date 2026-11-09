@@ -92,8 +92,8 @@ The repository existed before the hackathon. During the hackathon period we buil
 
 ## Try it out
 
-- GitHub: `https://github.com/Nhlanhla0001/dealflow-ai`
-- Video: `ADD_YOUTUBE_URL_BEFORE_SUBMITTING`
+- GitHub: `https://github.com/Nhlanhla0001/dealflow`
+- Video: `ADD_PUBLIC_YOUTUBE_URL`
 - Local setup: see the repository README.
 - Buyer: `buyer@dealflow.test` / `password`
 - Seller: `seller@dealflow.test` / `password`
@@ -122,8 +122,8 @@ Local master: `docs/dealflow-demo.mp4` (2:04, 1280×720). The rules require this
 | Meaningfully incorporate AI                             | Yes — two LLM negotiation agents, structured output, bounded by code |
 | Documented for judges                                   | Yes — README setup, architecture, demo accounts, testing             |
 | Functional demo (setup instructions or hosted URL)      | Setup instructions only; no hosted URL                               |
-| Public repository with all source, assets, instructions | Repository is public (MIT); **local changes must be pushed**         |
-| License visible in GitHub About                         | MIT detected on the repository                                       |
+| Public repository with all source, assets, instructions | Repository is public (AGPL-3.0); **local changes must be pushed**     |
+| License visible in GitHub About                         | AGPL-3.0 detected on the repository                                  |
 | Text description                                        | This document                                                        |
 | Tools used explanation                                  | "Tools used" section above                                           |
 | Public YouTube video under 3 minutes                    | **Not uploaded yet**                                                 |

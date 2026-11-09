@@ -320,4 +320,4 @@ tests/Feature/               HTTP and workflow tests
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+AGPL-3.0. See [LICENSE](LICENSE).
