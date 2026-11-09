@@ -49,7 +49,7 @@ enum TransactionState: string
             self::Negotiating => [self::AgreementProposed, self::Failed, self::Cancelled],
             self::AgreementProposed => [self::AwaitingApprovals, self::Cancelled],
             self::AwaitingApprovals => [self::Approved, self::Failed, self::Cancelled],
-            self::Approved => [self::PaymentPending, self::Cancelled],
+            self::Approved => [self::PaymentPending, self::AwaitingApprovals, self::Cancelled],
             self::PaymentPending => [self::Paid, self::Failed, self::Cancelled],
             self::Paid, self::Cancelled, self::Failed => [],
         };

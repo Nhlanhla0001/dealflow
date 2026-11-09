@@ -19,24 +19,26 @@ class PayPalClient
      */
     public function createOrder(PaymentOrder $paymentOrder, string $returnUrl, string $cancelUrl): array
     {
-        $response = $this->client()->post($this->baseUrl().'/v2/checkout/orders', [
-            'intent' => 'CAPTURE',
-            'purchase_units' => [[
-                'reference_id' => 'transaction-'.$paymentOrder->transaction_id,
-                'description' => Str::limit($paymentOrder->transaction->title, 120),
-                'amount' => [
-                    'currency_code' => $paymentOrder->currency,
-                    'value' => $this->amount($paymentOrder->amount_minor),
+        $response = $this->client()
+            ->withHeaders(['PayPal-Request-Id' => 'create-'.$paymentOrder->id])
+            ->post($this->baseUrl().'/v2/checkout/orders', [
+                'intent' => 'CAPTURE',
+                'purchase_units' => [[
+                    'reference_id' => 'transaction-'.$paymentOrder->transaction_id,
+                    'description' => Str::limit($paymentOrder->transaction->title, 120),
+                    'amount' => [
+                        'currency_code' => $paymentOrder->currency,
+                        'value' => $this->amount($paymentOrder->amount_minor),
+                    ],
+                ]],
+                'application_context' => [
+                    'brand_name' => Str::limit((string) config('app.name'), 127),
+                    'landing_page' => 'LOGIN',
+                    'user_action' => 'PAY_NOW',
+                    'return_url' => $returnUrl,
+                    'cancel_url' => $cancelUrl,
                 ],
-            ]],
-            'application_context' => [
-                'brand_name' => Str::limit((string) config('app.name'), 127),
-                'landing_page' => 'LOGIN',
-                'user_action' => 'PAY_NOW',
-                'return_url' => $returnUrl,
-                'cancel_url' => $cancelUrl,
-            ],
-        ]);
+            ]);
 
         if ($response->failed()) {
             throw new RuntimeException($this->errorMessage($response));

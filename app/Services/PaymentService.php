@@ -32,6 +32,18 @@ class PaymentService
             throw new InvalidArgumentException('The agreement must be approved by both parties.');
         }
 
+        if ($transaction->latestAgreement?->id !== $agreement->id) {
+            throw new InvalidArgumentException('Only the latest agreement version can be paid.');
+        }
+
+        $agreement->loadMissing('approvals');
+
+        $roles = $agreement->approvals->pluck('role')->unique();
+
+        if ($agreement->approvals->count() < 2 || ! $roles->contains('buyer') || ! $roles->contains('seller')) {
+            throw new InvalidArgumentException('Both parties must approve this agreement version.');
+        }
+
         $existing = $transaction->paymentOrders()
             ->whereIn('status', [PaymentStatus::Created->value, PaymentStatus::Pending->value])
             ->latest()
@@ -107,6 +119,11 @@ class PaymentService
             throw new RuntimeException('PayPal did not complete the capture.');
         }
 
+        $this->assertCapturedAmount(
+            $paymentOrder,
+            data_get($response, 'purchase_units.0.payments.captures.0.amount'),
+        );
+
         $captureId = data_get($response, 'purchase_units.0.payments.captures.0.id');
 
         $paymentOrder->update([
@@ -172,6 +189,21 @@ class PaymentService
                 ->first();
 
             if ($paymentOrder !== null && $paymentOrder->status !== PaymentStatus::Captured) {
+                if (! $this->matchesAmount($paymentOrder, data_get($payload, 'resource.amount'))) {
+                    $paymentOrder->update(['status' => PaymentStatus::Failed]);
+
+                    $this->audit->record(null, $paymentOrder->transaction, 'payment.capture_rejected', [
+                        'payment_order_id' => $paymentOrder->id,
+                        'expected_minor' => $paymentOrder->amount_minor,
+                        'expected_currency' => $paymentOrder->currency,
+                        'source' => 'webhook',
+                    ]);
+
+                    $event->update(['processed_at' => now()]);
+
+                    return;
+                }
+
                 $paymentOrder->update([
                     'status' => PaymentStatus::Captured,
                     'capture_id' => $captureId,
@@ -194,6 +226,46 @@ class PaymentService
         }
 
         $event->update(['processed_at' => now()]);
+    }
+
+    /**
+     * Reject a capture whose reported amount or currency does not match the
+     * approved server-side amount, and fail the payment order.
+     */
+    private function assertCapturedAmount(PaymentOrder $paymentOrder, mixed $amount): void
+    {
+        if ($this->matchesAmount($paymentOrder, $amount)) {
+            return;
+        }
+
+        $paymentOrder->update(['status' => PaymentStatus::Failed]);
+
+        $this->audit->record(
+            $paymentOrder->transaction->buyer,
+            $paymentOrder->transaction,
+            'payment.capture_rejected',
+            [
+                'payment_order_id' => $paymentOrder->id,
+                'expected_minor' => $paymentOrder->amount_minor,
+                'expected_currency' => $paymentOrder->currency,
+                'source' => 'capture',
+            ],
+        );
+
+        throw new RuntimeException('PayPal captured a different amount than the approved agreement.');
+    }
+
+    private function matchesAmount(PaymentOrder $paymentOrder, mixed $amount): bool
+    {
+        if (! is_array($amount)) {
+            return false;
+        }
+
+        $value = (string) ($amount['value'] ?? '');
+        $currency = (string) ($amount['currency_code'] ?? '');
+
+        return $value === number_format($paymentOrder->amount_minor / 100, 2, '.', '')
+            && $currency === $paymentOrder->currency;
     }
 
     private function createOrderRecord(Transaction $transaction, PaymentOrder $paymentOrder): void

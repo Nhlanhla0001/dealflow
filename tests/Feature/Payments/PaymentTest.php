@@ -52,6 +52,21 @@ class PaymentTest extends TestCase
         $this->assertSame(TransactionState::PaymentPending, $transaction->fresh()->state);
     }
 
+    public function test_checkout_sends_an_idempotency_key(): void
+    {
+        $this->fakePayPal();
+        [$transaction] = $this->approvedTransaction();
+
+        $this->actingAs($transaction->buyer)
+            ->post(route('transactions.checkout', $transaction))
+            ->assertRedirect();
+
+        $paymentOrder = $transaction->paymentOrders()->sole();
+
+        Http::assertSent(fn ($request): bool => str_contains($request->url(), '/v2/checkout/orders')
+            && $request->hasHeader('PayPal-Request-Id', 'create-'.$paymentOrder->id));
+    }
+
     public function test_seller_cannot_create_a_paypal_checkout(): void
     {
         $this->fakePayPal();
@@ -129,6 +144,10 @@ class PaymentTest extends TestCase
             'event_type' => 'PAYMENT.CAPTURE.COMPLETED',
             'resource' => [
                 'id' => 'CAP123',
+                'amount' => [
+                    'value' => '500.00',
+                    'currency_code' => 'USD',
+                ],
                 'supplementary_data' => [
                     'related_ids' => ['order_id' => 'ORDER123'],
                 ],
@@ -176,8 +195,87 @@ class PaymentTest extends TestCase
         $this->assertDatabaseCount('payment_events', 0);
     }
 
-    private function fakePayPal(string $verification = 'SUCCESS'): void
+    public function test_capture_is_rejected_when_paypal_reports_a_different_amount(): void
     {
+        $this->fakePayPal('SUCCESS', '1.00');
+        [$transaction] = $this->approvedTransaction();
+
+        $this->actingAs($transaction->buyer)
+            ->post(route('transactions.checkout', $transaction));
+
+        $paymentOrder = $transaction->paymentOrders()->sole();
+
+        $returnUrl = URL::temporarySignedRoute('payments.return', now()->addHour(), [
+            'paymentOrder' => $paymentOrder->id,
+        ]);
+
+        $this->actingAs($transaction->buyer)->get($returnUrl);
+
+        $this->assertSame(PaymentStatus::Failed, $paymentOrder->fresh()->status);
+        $this->assertSame(TransactionState::PaymentPending, $transaction->fresh()->state);
+        $this->assertDatabaseMissing('orders', ['transaction_id' => $transaction->id]);
+    }
+
+    public function test_webhook_capture_with_a_mismatched_amount_is_not_trusted(): void
+    {
+        $this->fakePayPal();
+        [$transaction] = $this->approvedTransaction();
+
+        $this->actingAs($transaction->buyer)
+            ->post(route('transactions.checkout', $transaction));
+
+        $paymentOrder = $transaction->paymentOrders()->sole();
+
+        $payload = [
+            'id' => 'WH-MISMATCH',
+            'event_type' => 'PAYMENT.CAPTURE.COMPLETED',
+            'resource' => [
+                'id' => 'CAP999',
+                'amount' => [
+                    'value' => '1.00',
+                    'currency_code' => 'USD',
+                ],
+                'supplementary_data' => [
+                    'related_ids' => ['order_id' => 'ORDER123'],
+                ],
+            ],
+        ];
+
+        $this->postJson(route('webhooks.paypal'), $payload, $this->webhookHeaders())
+            ->assertOk();
+
+        $this->assertSame(PaymentStatus::Failed, $paymentOrder->fresh()->status);
+        $this->assertSame(TransactionState::PaymentPending, $transaction->fresh()->state);
+        $this->assertDatabaseMissing('orders', ['transaction_id' => $transaction->id]);
+    }
+
+    public function test_checkout_is_blocked_when_a_newer_agreement_awaits_approval(): void
+    {
+        $this->fakePayPal();
+        [$transaction] = $this->approvedTransaction();
+
+        $transaction->agreements()->create([
+            'version' => 2,
+            'price_minor' => 60000,
+            'currency' => 'USD',
+            'delivery_days' => 10,
+            'terms' => ['scope' => 'renegotiated'],
+            'status' => AgreementStatus::AwaitingApprovals,
+            'hash' => hash('sha256', 'v2'),
+        ]);
+
+        $this->actingAs($transaction->buyer)
+            ->post(route('transactions.checkout', $transaction))
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('payment_orders', 0);
+    }
+
+    private function fakePayPal(
+        string $verification = 'SUCCESS',
+        string $captureValue = '500.00',
+        string $captureCurrency = 'USD',
+    ): void {
         Http::preventStrayRequests();
 
         Http::fake([
@@ -202,7 +300,14 @@ class PaymentTest extends TestCase
                     [
                         'payments' => [
                             'captures' => [
-                                ['id' => 'CAP123', 'status' => 'COMPLETED'],
+                                [
+                                    'id' => 'CAP123',
+                                    'status' => 'COMPLETED',
+                                    'amount' => [
+                                        'value' => $captureValue,
+                                        'currency_code' => $captureCurrency,
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -231,6 +336,19 @@ class PaymentTest extends TestCase
             'terms' => ['scope' => $transaction->title],
             'status' => AgreementStatus::Approved,
             'hash' => hash('sha256', 'test-agreement'),
+        ]);
+
+        $agreement->approvals()->createMany([
+            [
+                'user_id' => $transaction->buyer_id,
+                'role' => 'buyer',
+                'approved_at' => now(),
+            ],
+            [
+                'user_id' => $transaction->seller_id,
+                'role' => 'seller',
+                'approved_at' => now(),
+            ],
         ]);
 
         return [$transaction, $agreement];

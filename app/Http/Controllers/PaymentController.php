@@ -22,11 +22,9 @@ class PaymentController extends Controller
     ): RedirectResponse {
         $this->authorize('create', [PaymentOrder::class, $transaction]);
 
-        $agreement = $transaction->latestAgreement()
-            ->where('status', AgreementStatus::Approved->value)
-            ->first();
+        $agreement = $transaction->latestAgreement;
 
-        if ($agreement === null) {
+        if ($agreement === null || $agreement->status !== AgreementStatus::Approved) {
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => __('The agreement must be approved before payment.'),

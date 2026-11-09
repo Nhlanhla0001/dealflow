@@ -7,6 +7,7 @@ use App\Enums\TransactionState;
 use App\Models\Agreement;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class AgreementService
 {
@@ -22,7 +23,19 @@ class AgreementService
         array $negotiationSummary = [],
     ): Agreement {
         return DB::transaction(function () use ($transaction, $priceMinor, $deliveryDays, $negotiationSummary): Agreement {
+            $transaction->refresh();
             $transaction->loadMissing(['buyer', 'seller']);
+
+            if (in_array($transaction->state, [
+                TransactionState::PaymentPending,
+                TransactionState::Paid,
+                TransactionState::Cancelled,
+                TransactionState::Failed,
+            ], true)) {
+                throw new InvalidArgumentException(
+                    'A new agreement cannot be created once payment has started or the deal is closed.'
+                );
+            }
 
             $version = (int) $transaction->agreements()->max('version') + 1;
 
@@ -59,8 +72,15 @@ class AgreementService
 
             $transaction->agreements()
                 ->whereKeyNot($agreement->id)
-                ->where('status', AgreementStatus::AwaitingApprovals->value)
+                ->whereIn('status', [
+                    AgreementStatus::AwaitingApprovals->value,
+                    AgreementStatus::Approved->value,
+                ])
                 ->update(['status' => AgreementStatus::Superseded->value]);
+
+            if ($transaction->state === TransactionState::Approved) {
+                $transaction->transitionTo(TransactionState::AwaitingApprovals);
+            }
 
             if ($transaction->state === TransactionState::Negotiating) {
                 $transaction->transitionTo(TransactionState::AgreementProposed);
